@@ -1,0 +1,93 @@
+<html>
+<title>
+High Noon
+</title>
+<head>
+<style>
+@font-face { font-family: OVERWATCH; src: url('big_noodle_titling_oblique.ttf'); } 
+h1 {
+font-family: OVERWATCH;
+font-size:600%;
+}
+</style>
+</head>
+<body>
+<br>
+<center><h1 id="time"></h1></center>
+<center><h1 id="timeTilNoon"></h1>
+<img id="mccree">
+<img src="overwatchBack.jpg">
+</center>
+
+
+</body>
+
+<script>
+var noonAudio = new Audio('highNoon.mp3');
+var timeTilNoon;
+
+
+
+function init() {
+	var current = parseInt(new Date() / 1000);
+	var offset = (new Date().getTimezoneOffset()) * 60;
+
+	current = current - offset;
+
+	var secondsElapsedSinceNoon = current % 86400;
+  
+    timeTilNoon = 129600 - secondsElapsedSinceNoon;
+
+    console.log("CURRENT (raw): " + current);
+
+
+
+	console.log("LOCAL OFFSET: " + offset);
+	console.log("YOUR TIME : " + formatSeconds(current));
+	console.log("current: " + formatSeconds(current));
+	console.log("SINCE NOON: " + secondsElapsedSinceNoon);
+	console.log("UNTIL NOON: " + timeTilNoon);
+	console.log("it will be noon at: " + (parseInt(new Date() / 1000) + parseInt(timeTilNoon)));
+}
+
+
+function formatSeconds(seconds) {
+    var date = new Date(1970,0,1);
+    date.setSeconds(seconds);
+    return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+}
+
+function resetMcree() {
+    document.getElementById("mccree").src="";
+}
+
+
+function updateTime() {
+	setTimeout(function(){ 
+	document.getElementById("timeTilNoon").innerHTML = formatSeconds(timeTilNoon);
+
+	timeTilNoon--;
+	console.log(timeTilNoon);
+
+	    if(timeTilNoon == 0) {
+	        document.getElementById("mccree").src="mccree.png";
+            noonAudio.play();
+            //re-init for tomorrow
+            init();
+
+            //display McCree's image for 3 seconds, then dissapear until tomorrow.
+            setTimeout(function(){
+            	resetMcree();
+            }, 2600);
+	    }
+
+	    updateTime();
+    }, 1000);
+}
+
+init();
+updateTime();
+
+
+</script>
+</html>
