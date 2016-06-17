@@ -1,0 +1,76 @@
+<html>
+<ng-app="Boilerplate">
+    
+    <body>
+    <div layout="row">
+        <div flex="15">
+            <br><br><br><br><br><br>
+            <center>
+                <h2>{{newRecord}}</h2>
+            </center>
+        </div>
+        <div flex="70">
+            <center>
+                <h2>It's High Noon, McCree.</h2>
+                <h1 id="timeTilNoon"></h1>
+                <h2 id="numUsers"></h2>
+                <img id="mccree">
+                <img src="Assets/overwatchBack.jpg">
+            </center>
+        </div>
+        <div flex>
+            <div style="top:50%;">
+                <center>
+                    <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
+                </center>
+            </div>
+        </div>
+    </div>
+
+
+    <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
+      <md-content layout-padding>
+          <center><h3>Chat</h3></center>
+          
+          <div ng-show="chatName">
+          
+          <div id="chat" style="height: 50vh; overflow: auto;">
+              <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center>No messages.</center></div>
+              <md-list>
+                  <md-list-item class="md-3-line" ng-repeat="message in messages track by $index">
+                    <div class="md-list-item-text">
+                      <h3>{{message.requestor}}<br>{{message.message}}</h3>
+                      <p>
+                      At {{message.timestamp | date:'hh:mm a'}}
+                      </p>
+                    </div>
+                    <md-divider inset></md-divider>
+                  </md-list-item>
+                </md-list>
+              
+          </div>
+
+            <form autocomplete="off" ng-submit="sendMessage()">
+                <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                     <input ng-maxlength="50" style="text-align: left;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
+                     <br><md-button ng-disabled="!messageToSend" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                  </md-input-container>
+                </form>
+         </div>
+         <div ng-show="! chatName">
+            <form autocomplete="off" ng-submit="requestChatName()">
+                <md-input-container form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                     <input ng-maxlength="12" style="text-align: left;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
+                     <br><md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
+                 </md-input-container>
+             </form>
+         </div>
+
+        <md-button ng-click="closeChat()" class="md-primary">
+          Close Chat
+        </md-button>
+      </md-content>
+    </md-sidenav>
+
+</body>
+</html>
