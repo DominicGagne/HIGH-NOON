@@ -7,6 +7,7 @@ var fs = require('fs');
 
 var numUsers = 0;
 var allTimeHigh = 0;
+var activeNames = [];
 
 //do a synchronous read of the stats file upon program initialization.
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
@@ -20,15 +21,22 @@ app.get('/', function(req, res) {
 
 app.get('/requestChatName/:name', function(req, res) {
     //for now, send back success.
-    res.status(200).send(req.params.name)
+    addToActiveNames(req.params.name);
+    res.status(200).send(req.params.name);
 });
 
 
 io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
+    
     io.emit('updateNumUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
+
+    socket.on('join', function(utcOffset) {
+        //utcOffset is supplied in minutes
+        console.log("offset: ", utcOffset);        
+    });
 
     socket.on('disconnect', function() {
         numUsers--;
@@ -55,6 +63,16 @@ function checkRecords() {
            }        
         });
     }
+}
+
+function addToActiveNames(userName) {
+    activeNames.push(userName);
+    console.log("active users: " + JSON.stringify(activeNames));
+}
+
+function removeFromActiveNames(userName) {
+    activeNames.splice(userName, 1);
+    console.log("active users: " + JSON.stringify(activeNames));
 }
 
 

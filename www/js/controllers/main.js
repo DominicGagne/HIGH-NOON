@@ -17,6 +17,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     var socket = io();
 
+    socket.emit('join', new Date().getTimezoneOffset());
+
     socket.on('updateNumUsers', function(numUsers) {
         if(parseInt(numUsers) > 1) {
             document.getElementById("numUsers").innerHTML = numUsers + " cowboys here now.";
@@ -47,13 +49,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         });
     });
     $scope.sendMessage = function() {
-        var chatMsgObj = {};
-        chatMsgObj.requestor = $scope.chatName;
-        chatMsgObj.message = $scope.messageToSend;
-        console.log("SENDING: " + chatMsgObj.message);
-        $scope.messageToSend = '';
-        gunshot.play();
-        socket.emit('message', chatMsgObj);
+        if($scope.messageToSend) {
+            var chatMsgObj = {};
+            chatMsgObj.requestor = $scope.chatName;
+            chatMsgObj.message = $scope.messageToSend;
+            console.log("SENDING: " + chatMsgObj.message);
+            $scope.messageToSend = '';
+            gunshot.play();
+            socket.emit('message', chatMsgObj);
+        }
     };
 
 
@@ -90,18 +94,27 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 	var offset = (new Date().getTimezoneOffset()) * 60;
         var secondsElapsedSinceNoon;
         
-	current = current - offset;
+        current = current - offset;
 
+        //you're drunk, don't get too bold, Ballmer.
+        current = current + 43200;
+        secondsElapsedSinceNoon = current % 86400;
+        //end drunk
+
+        /*
         if((current % 129600) > 86400) {
             console.log("BEFORE NOON");
             secondsElapsedSinceNoon = current % 86400;
         } else {
             secondsElapsedSinceNoon = current % 43200;
             console.log("AFTER NOON");
+            timeTilNoon = 86400 - secondsElapsedSinceNoon;
         }
+        */
+
+        timeTilNoon = 86400 - secondsElapsedSinceNoon;
 
         console.log("SECONDS ELAPSED SINCE NOON: " + secondsElapsedSinceNoon);  
-        timeTilNoon = 86400 - secondsElapsedSinceNoon;
 
         console.log("CURRENT (raw): " + current);
 

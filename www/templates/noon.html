@@ -11,8 +11,8 @@
         </div>
         <div flex="70">
             <center>
-                <h2>It's High Noon, McCree.</h2>
-                <h1 id="timeTilNoon"></h1>
+                <h2><i>It's High Noon, McCree.</i></h2>
+                <i><h1 id="timeTilNoon"></h1></i>
                 <h2 id="numUsers"></h2>
                 <img id="mccree">
                 <img src="Assets/overwatchBack.jpg">
@@ -35,7 +35,7 @@
           <div ng-show="chatName">
           
           <div id="chat" style="height: 50vh; overflow: auto;">
-              <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center>No messages.</center></div>
+              <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center><p>No messages.</p></center></div>
               <md-list>
                   <md-list-item class="md-3-line" ng-repeat="message in messages track by $index">
                     <div class="md-list-item-text">
@@ -52,16 +52,23 @@
 
             <form autocomplete="off" ng-submit="sendMessage()">
                 <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                     <input ng-maxlength="50" style="text-align: left;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
-                     <br><md-button ng-disabled="!messageToSend" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
-                  </md-input-container>
-                </form>
+                     <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
+                     <br>
+                     <center>
+                     <md-button ng-disabled="!messageToSend" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                     </center>
+                </md-input-container>
+            </form>
          </div>
          <div ng-show="! chatName">
+            <center><h3>Create a Username to get started!</h3></center>
             <form autocomplete="off" ng-submit="requestChatName()">
                 <md-input-container form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                     <input ng-maxlength="12" style="text-align: left;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
-                     <br><md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
+                     <input ng-maxlength="12" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
+                     <br>
+                     <center>
+                     <md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
+                     </center>
                  </md-input-container>
              </form>
          </div>
