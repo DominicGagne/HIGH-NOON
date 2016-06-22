@@ -11,7 +11,6 @@ var activeNames = [];
 
 var timeZoneUnit = require('./timeZoneModule.js');
 var timeZoneModule = new timeZoneUnit(io);
-timeZoneModule.activateModule();
 
 var timestamp = parseInt(new Date() / 1000);
 
@@ -42,6 +41,7 @@ io.on('connection', function(socket) {
     socket.on('join', function(utcOffset) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
+        socket.emit('secondHasPassed',timeZoneModule.determineUserTimeZone(utcOffset));
         assignTimeZone(socket, utcOffset);       
     });
 
@@ -99,9 +99,8 @@ var untilNoon = 86400 - sinceNoon;
 
 setInterval(function () {
     untilNoon--;
-    //io.emit('secondHasPassed', timestamp);
     
-    io.to('EST').emit('secondHasPassed', untilNoon);
+    globalTimestampEmit();
 }, 1000);
 
 
