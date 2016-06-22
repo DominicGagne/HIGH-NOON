@@ -3,6 +3,8 @@ var timeZoneModule = function(io) {
     var self = this;
 
     self.determineUserTimeZone = function(socket, utcOffset) {
+
+        console.log("utcOffset (minute): ", utcOffset);
         //utc offset is given in minutes.
         
         //no way around this, we're going to need a massive switch statement.
@@ -61,6 +63,7 @@ var timeZoneModule = function(io) {
           case 240: {
               //Eastern Daylight Time
               //EDT
+              console.log("Joined EDT.");
               socket.join('EDT');
               return 'EDT';
           }
@@ -170,6 +173,8 @@ var timeZoneModule = function(io) {
 
     //timststamp for UTCin seconds.  Emit offset to all timezones.
     self.globalTimestampEmit = function(timestampUTC) {
+           
+            console.log("Server side UTC timestamp: ", timestampUTC);
 
             //Is BIT timezone even possible?  Not the same as UTC?
             io.to('BIT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 43200));

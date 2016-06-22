@@ -12,8 +12,6 @@ var activeNames = [];
 var timeZoneUnit = require('./timeZoneModule.js');
 var timeZoneModule = new timeZoneUnit(io);
 
-var timestamp = parseInt(new Date() / 1000);
-
 //do a synchronous read of the stats file upon program initialization.
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
 
@@ -41,8 +39,8 @@ io.on('connection', function(socket) {
     socket.on('join', function(utcOffset) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
-        socket.emit('secondHasPassed',timeZoneModule.determineUserTimeZone(utcOffset));
-        assignTimeZone(socket, utcOffset);       
+        var zone = timeZoneModule.determineUserTimeZone(socket, utcOffset);
+        socket.emit('secondHasPassed',zone);
     });
 
     socket.on('disconnect', function() {
@@ -58,14 +56,6 @@ io.on('connection', function(socket) {
         io.emit('message', msg);
     });
 });
-
-function assignTimeZone(socket, utcOffset) {
-    if(utcOffset == 240) {
-        console.log("EST!");
-        socket.join('EST');
-    }
-}
-
 
 function checkRecords() {
     if(numUsers > allTimeHigh) {
@@ -90,17 +80,9 @@ function removeFromActiveNames(userName) {
 }
 
 
-timestamp = timestamp - (240 * 60);
-timestamp = timestamp + 43200;
-
-var sinceNoon;
-sinceNoon = timestamp % 86400;
-var untilNoon = 86400 - sinceNoon;
 
 setInterval(function () {
-    untilNoon--;
-    
-    globalTimestampEmit();
+    timeZoneModule.globalTimestampEmit(parseInt(new Date() / 1000));
 }, 1000);
 
 

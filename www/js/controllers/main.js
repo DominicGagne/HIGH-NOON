@@ -17,6 +17,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     var socket = io();
 
+    console.log("offset (minutes) client side: ",new Date().getTimezoneOffset());
+
     socket.emit('join', new Date().getTimezoneOffset());
 
         $scope.temp = parseInt(new Date() / 1000);
