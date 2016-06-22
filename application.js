@@ -9,6 +9,12 @@ var numUsers = 0;
 var allTimeHigh = 0;
 var activeNames = [];
 
+var timeZoneUnit = require('./timeZoneModule.js');
+var timeZoneModule = new timeZoneUnit(io);
+timeZoneModule.activateModule();
+
+var timestamp = parseInt(new Date() / 1000);
+
 //do a synchronous read of the stats file upon program initialization.
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
 
@@ -35,7 +41,8 @@ io.on('connection', function(socket) {
 
     socket.on('join', function(utcOffset) {
         //utcOffset is supplied in minutes
-        console.log("offset: ", utcOffset);        
+        console.log("offset: ", utcOffset); 
+        assignTimeZone(socket, utcOffset);       
     });
 
     socket.on('disconnect', function() {
@@ -51,6 +58,13 @@ io.on('connection', function(socket) {
         io.emit('message', msg);
     });
 });
+
+function assignTimeZone(socket, utcOffset) {
+    if(utcOffset == 240) {
+        console.log("EST!");
+        socket.join('EST');
+    }
+}
 
 
 function checkRecords() {
@@ -74,6 +88,21 @@ function removeFromActiveNames(userName) {
     activeNames.splice(userName, 1);
     console.log("active users: " + JSON.stringify(activeNames));
 }
+
+
+timestamp = timestamp - (240 * 60);
+timestamp = timestamp + 43200;
+
+var sinceNoon;
+sinceNoon = timestamp % 86400;
+var untilNoon = 86400 - sinceNoon;
+
+setInterval(function () {
+    untilNoon--;
+    //io.emit('secondHasPassed', timestamp);
+    
+    io.to('EST').emit('secondHasPassed', untilNoon);
+}, 1000);
 
 
 //project is ready, listen on port 3000.

@@ -19,6 +19,23 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.emit('join', new Date().getTimezoneOffset());
 
+        $scope.temp = parseInt(new Date() / 1000);
+
+        var setOffset = (new Date().getTimezoneOffset()) * 60;
+        var secondsElapsedSinceNoon;
+        
+        $scope.temp = $scope.temp - setOffset;
+
+        $scope.temp = $scope.temp + 43200;
+        $scope.secondsElapsedSinceNoon = $scope.temp % 86400;
+
+    socket.on('secondHasPassed', function(timestamp) {
+        $scope.$apply(function() {
+            $scope.newCount = formatSeconds(timestamp);     
+            console.log("secondHasPassed: " , timestamp);
+        });
+    });
+
     socket.on('updateNumUsers', function(numUsers) {
         if(parseInt(numUsers) > 1) {
             document.getElementById("numUsers").innerHTML = numUsers + " cowboys here now.";
