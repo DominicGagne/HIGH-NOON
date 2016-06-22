@@ -1,0 +1,16 @@
+{
+  "name": "HIGH-NOON",
+  "version": "0.0.1",
+  "description": "McCree's gonna like this one.",
+  "dependencies": {
+    "socket.io": "^1.4.6",
+     "body-parser": "^1.13.3",
+    "connect-ensure-login": "^0.1.1",
+    "ejs": "^2.3.3",
+    "express": "^4.13.3",
+    "express-session": "^1.11.3",
+    "morgan": "^1.6.1",
+    "passport": "^0.3.0",
+    "passport-local": "^1.0.0"
+  }
+}
