@@ -22,6 +22,7 @@ console.log("All time high: " + allTimeHigh);
 
 var point;
 app.get('/', function(req, res) {
+  console.log("THIS USER: " , req.connection.remoteAddress);
     console.log("Banned users: ", bannedIPs);
     isBanned(req.ip, function(banned) {
         if(banned) {     
