@@ -38,11 +38,17 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $scope.timezone = initObject;
     });
 
-    socket.on('updateNumUsers', function(numUsers) {
+    socket.on('updateNumGlobalUsers', function(numUsers) {
         if(parseInt(numUsers) > 1) {
-            document.getElementById("numUsers").innerHTML = numUsers + " cowboys here now.";
+            document.getElementById("numUsers").innerHTML = numUsers + " cowboys here globally.";
         } else {
-            document.getElementById("numUsers").innerHTML = numUsers + " cowboy here now.";
+            document.getElementById("numUsers").innerHTML = numUsers + " cowboy here globally.";
+        }
+    });
+
+    socket.on('updateNumZoneUsers', function(numUsers) {
+        if(parseInt(numUsers) > 1) {
+            $scope.zoneUsersMessage = numUsers + 'in ' + $scope.timezone;
         }
     });
 
@@ -100,7 +106,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         if(warningsAboutSpam > 2) {
             //three strikes, you're out!
             whosATurkey.play();
-            setTimeout(function(){redirectSpammer();},2500);
+            setTimeout(function(){redirectSpammer();},2100);
         }
     }
 

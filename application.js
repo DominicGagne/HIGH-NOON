@@ -33,13 +33,13 @@ io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
     
-    io.emit('updateNumUsers', numUsers);
+    io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
 
     socket.on('join', function(utcOffset) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
-        var zone = timeZoneModule.determineUserTimeZone(socket, utcOffset);
+        var zone = timeZoneModule.determineUserTimeZone(socket, io, utcOffset);
         socket.emit('initialization',zone);
     });
 

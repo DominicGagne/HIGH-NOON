@@ -2,7 +2,37 @@ var timeZoneModule = function(io) {
 
     var self = this;
 
-    self.determineUserTimeZone = function(socket, utcOffset) {
+    self.initializeZoneUsers = function() {
+        var globalUserTracker = {};
+        globalUserTracker.BIT = 0;
+        globalUserTracker.NUT = 0;
+        globalUserTracker.CKT = 0;
+        globalUserTracker.AKST = 0;
+        globalUserTracker.PST = 0;
+        globalUserTracker.MST = 0;
+        globalUserTracker.GALT = 0;
+        globalUserTracker.ECT = 0;
+        globalUserTracker.EDT = 0;
+        globalUserTracker.ART = 0;
+        globalUserTracker.GST = 0;
+        globalUserTracker.CVT = 0;
+        globalUserTracker.UTC = 0;
+        globalUserTracker.CET = 0;
+        globalUserTracker.CAT = 0;
+        globalUserTracker.EAT = 0;
+        globalUserTracker.AZT = 0;
+        globalUserTracker.HMT = 0;
+        globalUserTracker.BST = 0;
+        globalUserTracker.CXT = 0;
+        globalUserTracker.ACT = 0;
+        globalUserTracker.JST = 0;
+        globalUserTracker.AEST = 0;
+        globalUserTracker.LHST = 0;
+
+        return globalUserTracker;
+    };
+
+    self.determineUserTimeZone = function(socket, io, utcOffset) {
 
         console.log("utcOffset (minute): ", utcOffset);
         //utc offset is given in minutes.
