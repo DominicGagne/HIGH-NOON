@@ -22,15 +22,17 @@ console.log("All time high: " + allTimeHigh);
 
 var point;
 app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/www/index.html');
   console.log("THIS USER: " , req.connection.remoteAddress);
     console.log("Banned users: ", bannedIPs);
-    isBanned(req.ip, function(banned) {
+    
+    /*isBanned(req.ip, function(banned) {
         if(banned) {     
            res.sendFile(__dirname + '/www/banned.html');
         } else {
             res.sendFile(__dirname + '/www/index.html');
         }
-    }); 
+    });*/ 
 });
 
 app.get('/requestChatName/:name', function(req, res) {
@@ -95,7 +97,7 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-        console.log("DISCONNECT: ", socket.rooms);
+        console.log("DISCONNECT: ", socket);
         numUsers--;
         io.emit('updateNumGlobalUsers', numUsers); 
         console.log("Cowboy disconnected. Total: " + numUsers);
