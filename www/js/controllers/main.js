@@ -2,10 +2,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
 .controller('NoonCtrl',function($scope, $route, $location, $mdDialog, $mdMedia, $mdSidenav, $mdToast, $http) {
     console.log("Loaded Noon Controller.");
-
     $scope.messages = [];
     $scope.messageToSend = '';
     $scope.potentialChatName = '';
+    $scope.timeTilNoon = 'LOADING...';
+
+    $scope.chatPrompt = null;
+
+    var messagesSentThisInterval = 0;
+    var warningsAboutSpam = 0;
 
     var noonAudio = new Audio('Assets/highNoon.mp3');
     var gunshot = new Audio('Assets/mccreeGunshot.mp3');
@@ -21,21 +26,16 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.emit('join', new Date().getTimezoneOffset());
 
-        $scope.temp = parseInt(new Date() / 1000);
-
-        var setOffset = (new Date().getTimezoneOffset()) * 60;
-        var secondsElapsedSinceNoon;
-        
-        $scope.temp = $scope.temp - setOffset;
-
-        $scope.temp = $scope.temp + 43200;
-        $scope.secondsElapsedSinceNoon = $scope.temp % 86400;
-
     socket.on('secondHasPassed', function(timestamp) {
         $scope.$apply(function() {
-            $scope.newCount = formatSeconds(timestamp);     
+            $scope.timeTilNoon = formatSeconds(timestamp);
             console.log("secondHasPassed: " , timestamp);
         });
+    });
+
+    socket.on('initialization', function(initObject) {
+        //more details to add here?  Add attributes to object.
+        $scope.timezone = initObject;
     });
 
     socket.on('updateNumUsers', function(numUsers) {
@@ -67,8 +67,61 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             $scope.newRecord = 'New all time high! ' + allTimeHigh + ' Cowboys!';
         });
     });
+
+
+
+    function monitorSpam() {
+        console.log("Monitoring spam...");
+        if(messagesSentThisInterval > 2) {
+            console.log("TOO MANY!");
+            warningsAboutSpam++;
+            checkWarningsAboutSpam();
+
+            $scope.chatPrompt = 'Easy there, tiger. Too many messages.';
+            messagesSentThisInterval = 0;
+
+            //they literally get a timeout if they send too many messages.
+            setTimeout(function(){cooldownForSpammers();}, 15000);
+        } 
+    }
+
+    function resetChatInterval() {
+        console.log("RESETTING CHAT INTERVAL");
+        messagesSentThisInterval = 0;
+        console.log("IS OPEN: " + $mdSidenav('right').isOpen());
+        if($mdSidenav('right').isOpen()) {
+            setTimeout(function() {
+                resetChatInterval();
+            }, 3000);
+        }
+    }
+
+    function checkWarningsAboutSpam() {
+        if(warningsAboutSpam > 2) {
+            //three strikes, you're out!
+            whosATurkey.play();
+            setTimeout(function(){redirectSpammer();},2500);
+        }
+    }
+
+    function redirectSpammer() {
+        window.location = 'https://www.youtube.com/watch?v=BlcqSsQfK68';
+    }
+
+    //this function is dedicated to Chris
+    //it is called after the spammer gets a 15 seconds timeout to reset their chatPrompt
+    function cooldownForSpammers() {
+        $scope.chatPrompt = null;
+
+    }
+
+
+
+
     $scope.sendMessage = function() {
         if($scope.messageToSend) {
+            messagesSentThisInterval++;
+            monitorSpam();
             var chatMsgObj = {};
             chatMsgObj.requestor = $scope.chatName;
             chatMsgObj.message = $scope.messageToSend;
@@ -86,6 +139,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         familiar.play();
         var objDiv = document.getElementById("chat");
         objDiv.scrollTop = objDiv.scrollHeight;
+        resetChatInterval();
     };
 
     $scope.requestChatName = function() {
@@ -93,7 +147,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     };
 
     $scope.closeChat = function() {
-         $mdSidenav('right').close();
+        console.log("Chat was closed");
+        $mdSidenav('right').close();
     };
 
     function joinChat(response) {
@@ -106,46 +161,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     }
 
 
-    function init() {
-	document.getElementById("timeTilNoon").innerHTML = 'LOADING...';
-
-	var current = parseInt(new Date() / 1000);
-	var offset = (new Date().getTimezoneOffset()) * 60;
-        var secondsElapsedSinceNoon;
-        
-        current = current - offset;
-
-        //you're drunk, don't get too bold, Ballmer.
-        current = current + 43200;
-        secondsElapsedSinceNoon = current % 86400;
-        //end drunk
-
-        /*
-        if((current % 129600) > 86400) {
-            console.log("BEFORE NOON");
-            secondsElapsedSinceNoon = current % 86400;
-        } else {
-            secondsElapsedSinceNoon = current % 43200;
-            console.log("AFTER NOON");
-            timeTilNoon = 86400 - secondsElapsedSinceNoon;
-        }
-        */
-
-        timeTilNoon = 86400 - secondsElapsedSinceNoon;
-
-        console.log("SECONDS ELAPSED SINCE NOON: " + secondsElapsedSinceNoon);  
-
-        console.log("CURRENT (raw): " + current);
-
-	console.log("LOCAL OFFSET: " + offset);
-	console.log("YOUR TIME : " + formatSeconds(current));
-	console.log("current: " + formatSeconds(current));
-	console.log("SINCE NOON: " + secondsElapsedSinceNoon);
-	console.log("UNTIL NOON: " + timeTilNoon);
-	console.log("it will be noon at: " + (parseInt(new Date() / 1000) + parseInt(timeTilNoon)));
-    }
-
-
     function formatSeconds(seconds) {
         var date = new Date(1970,0,1);
         date.setSeconds(seconds);
@@ -155,36 +170,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     function resetMcree() {
         document.getElementById("mccree").src="";
     }
-
-
-    function updateTime() {
-	setTimeout(function(){ 
-	document.getElementById("timeTilNoon").innerHTML = formatSeconds(timeTilNoon);
-
-	timeTilNoon--;
-	console.log(timeTilNoon);
-
-	    if(timeTilNoon == 0) {
-	        document.getElementById("mccree").src="Assets/mccree.png";
-                noonAudio.play();
-                //re-init for tomorrow
-                init();
-
-                //display McCree's image for 3 seconds, then dissapear until tomorrow.
-                setTimeout(function(){
-            	resetMcree();
-            }, 2600);
-	    }
-
-	    updateTime();
-        }, 1000);
-    }
-
-    init();
-    updateTime();
-
-
-
 
 
 });

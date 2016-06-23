@@ -16,146 +16,146 @@ var timeZoneModule = function(io) {
               //Baker Island Time
               //BIT
               socket.join('BIT');
-              return 'BIT';
+              return 'Baker Island Time';
           }
           case 660: {
               //Niue Time
               //NUT
               socket.join('NUT');
-              return 'NUT';
+              return 'Niue Time';
           }
           case 600: {
               //Cook Island Time
               //CKT
               socket.join('CKT');
-              return 'CKT';
+              return 'Cook Island Time';
           }
           case 540: {
               //Alaska Standard Time
               //AKST
               socket.join('AKST');
-              return 'AKST';
+              return 'Alaska Standard Time';
           }
           case 480: {
               //Pacific Standard Time
               //PST
               socket.join('PST');
-              return 'PST';
+              return 'Pacific Standard Time';
           }
           case 420: {
               //Mountain Standard Time
               //MST
               socket.join('MST');
-              return 'MST';
+              return 'Mountain Standard Time';
           }
           case 360: {
               //Galapagos Time
               //GALT
               socket.join('GALT');
-              return 'GALT';
+              return 'Galapagos Time';
           }
           case 300: {
               //Ecuador Time
               //ECT
               socket.join('ECT');
-              return 'ECT';
+              return 'Ecuador Time';
           }
           case 240: {
               //Eastern Daylight Time
               //EDT
               console.log("Joined EDT.");
               socket.join('EDT');
-              return 'EDT';
+              return 'Eastern Time';
           }
           case 180: {
               //Argentina Time
               //ART
               socket.join('ART');
-              return 'ART';
+              return 'Argentina Time';
           }
           case 120: {
-              //South Georgia and the South Sandwhich Islands (this sounds like a damn novel lol)
+              //South Georgia and the South Sandwich Islands (this sounds like a damn novel lol)
               //GST
               socket.join('GST');
-              return 'GST';
+              return 'South Georgia and the South Sandwich Islands';
           }
           case 60: {
               //Cape Verde Time
               //CVT
               socket.join('CVT');
-              return 'CVT';
+              return 'Cape Verde Time';
           }
           case 0: {
               //Universal Coordinated Time
               //UTC
               socket.join('UTC');
-              return 'UTC';
+              return 'Universal Coordinated Time';
           }
           case -60: {
               //Central European Time
               //CET
               socket.join('CET');
-              return 'CET';
+              return 'Central European Time';
           }
           case -120: {
               //Central African Time
               //CAT
               socket.join('CAT');
-              return 'CAT';
+              return 'Central African Time';
           }
           case -180: {
               //East Africa Time
               //EAT
               socket.join('EAT');
-              return 'EAT';
+              return 'East African Time';
           }
           case -240: {
               //Azerbaijan Time
               //AZT
               socket.join('AZT');
-              return 'AZT';
+              return 'Azerbaijan Time';
           }
           case -300: {
               //Heard and McDonald Island Time
               //HMT
               socket.join('HMT');
-              return 'HMT';
+              return 'Heard and McDonald Island Time';
           }
           case -360: {
               //Bangladesh Standard Time
               //BST
               socket.join('BST');
-              return 'BST';
+              return 'Bangladesh Standard Time';
           }
           case -420: {
               //Christmas Island Time
               //CXT
               socket.join('CXT');
-              return 'CXT';
+              return 'Christmas Island Time';
           }
           case -480: {
               //ASEAN Common Time
               //ACT
               socket.join('ACT');
-              return 'ACT';
+              return 'ASEAN Common Time';
           } 
           case -540: {
               //Japan Standard Time
               //JST
               socket.join('JST');
-              return 'JST';
+              return 'Japan Standard Time';
           } 
           case -600: {
               //Eastern Standard Time (Australia)
               //AEST
               socket.join('AEST');
-              return 'AEST';
+              return 'Australian Eastern Standard Time';
           }
           case -660: {
               //Lord Howe Summer Time
               //LHST
               socket.join('LHST');
-              return 'LHST';
+              return 'Lord Howe Summer Time';
           }
           case 12: {
               //is this possible?

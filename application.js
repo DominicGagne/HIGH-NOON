@@ -40,7 +40,7 @@ io.on('connection', function(socket) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
         var zone = timeZoneModule.determineUserTimeZone(socket, utcOffset);
-        socket.emit('secondHasPassed',zone);
+        socket.emit('initialization',zone);
     });
 
     socket.on('disconnect', function() {
@@ -78,8 +78,6 @@ function removeFromActiveNames(userName) {
     activeNames.splice(userName, 1);
     console.log("active users: " + JSON.stringify(activeNames));
 }
-
-
 
 setInterval(function () {
     timeZoneModule.globalTimestampEmit(parseInt(new Date() / 1000));

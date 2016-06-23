@@ -2,25 +2,25 @@
 <ng-app="Boilerplate">
     
     <body>
-    <div layout="row">
-        <div flex="15">
+    <div layout="row" layout-fill>
+        <div flex="15" flex-offset="5">
             <br><br><br><br><br><br>
+            <h2>{{timezone}}</h2>
             <center>
                 <h2>{{newRecord}}</h2>
-                What: {{newCount}}
             </center>
         </div>
-        <div flex="70">
+        <div flex="60">
             <center>
                 <h2><i>It's High Noon, McCree.</i></h2>
-                <i><h1 id="timeTilNoon"></h1></i>
+                <i><h1>{{timeTilNoon}}</h1></i>
                 <h2 id="numUsers"></h2>
                 <img id="mccree">
                 <img src="Assets/overwatchBack.jpg">
             </center>
         </div>
-        <div flex>
-            <div style="top:50%;">
+        <div flex="15" layout="column" layout-align="start start" layout-fill>
+            <div flex="20" flex-offset="30">
                 <center>
                     <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
                 </center>
@@ -29,11 +29,11 @@
     </div>
 
 
-    <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
+    <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right" style="width: 80%;">
       <md-content layout-padding>
           <center><h3>Chat</h3></center>
           
-          <div ng-show="chatName">
+          <div ng-show="chatName && !chatPrompt">
           
           <div id="chat" style="height: 50vh; overflow: auto;">
               <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center><p>No messages.</p></center></div>
@@ -56,15 +56,18 @@
                      <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
                      <br>
                      <center>
-                     <md-button ng-disabled="!messageToSend" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                     <md-button ng-disabled="!messageToSend && !chatPrompt" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
                      </center>
                 </md-input-container>
             </form>
          </div>
+         <div ng-show="chatPrompt">
+             <center><h3>{{chatPrompt}}</h3></center>
+         </div>
          <div ng-show="! chatName">
             <center><h3>Create a Username to get started!</h3></center>
             <form autocomplete="off" ng-submit="requestChatName()">
-                <md-input-container form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                <md-input-container style="width:50%; margin:auto;" form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
                      <input ng-maxlength="12" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
                      <br>
                      <center>
