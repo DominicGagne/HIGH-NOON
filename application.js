@@ -50,6 +50,7 @@ function isBanned(ip, callback) {
             //found the user, has their ban expired?
             if((new Date() / 1000) > bannedIPs[i].expiry) {
                 //the ban has expired.
+                bannedIPs.splice(i, 1);
                 return callback(false);
             } else {
               //still banned!
