@@ -9,6 +9,9 @@ var numUsers = 0;
 var allTimeHigh = 0;
 var activeNames = [];
 
+//stop passing all this stuff around globally...make modules...please...
+var bannedIPs = [];
+
 var timeZoneUnit = require('./timeZoneModule.js');
 var timeZoneModule = new timeZoneUnit(io);
 
@@ -19,7 +22,14 @@ console.log("All time high: " + allTimeHigh);
 
 var point;
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/www/index.html');
+    console.log("Banned users: ", bannedIPs);
+    isBanned(req.ip, function(banned) {
+        if(banned) {     
+           res.sendFile(__dirname + '/www/banned.html');
+        } else {
+            res.sendFile(__dirname + '/www/index.html');
+        }
+    }); 
 });
 
 app.get('/requestChatName/:name', function(req, res) {
@@ -29,10 +39,39 @@ app.get('/requestChatName/:name', function(req, res) {
 });
 
 
+//put this in a module, PLEASE.
+//also, is there a more efficient way to do this?
+//this function is run EVERY time someone connects to the site, after all.
+function isBanned(ip, callback) {
+    var numUsersBanned = bannedIPs.length;
+    for(var i = 0; i < numUsersBanned; i++) {
+        if(bannedIPs[i].ip == ip) {
+            //found the user, has their ban expired?
+            if((new Date() / 1000) > bannedIPs[i].expiry) {
+                //the ban has expired.
+                return callback(false);
+            } else {
+              //still banned!
+              return callback(true);
+            }
+        }
+    }
+    //not on the banned list.
+    return callback(false);
+}
+
+function addToBannedIPs(ip) {
+    var newBannedUser = {};
+    newBannedUser.ip = ip;
+    //save expiry of ban as UTC for simplicity
+    newBannedUser.expiry = new Date() / 1000;
+    bannedIPs.push(newBannedUser);
+}
+
+
 io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
-
 
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
@@ -60,9 +99,10 @@ io.on('connection', function(socket) {
     });
 
     socket.on('banHammer', function() {
-      console.log("ALL: ", socket);
-      var address = socket.handshake.address;
+        console.log("ALL: ", socket);
+        var address = socket.handshake.address;
         console.log("Banned:" , address);
+        addToBannedIPs(address);
     });
 
 
