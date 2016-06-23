@@ -101,7 +101,7 @@ var timeZoneModule = function(io) {
               //Central African Time
               //CAT
               socket.join('CAT');
-              return 'Central African Time';
+              return 'Heure Avancée d\'Europe Centrale';
           }
           case -180: {
               //East Africa Time
