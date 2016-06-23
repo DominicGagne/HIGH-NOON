@@ -65,7 +65,7 @@ function addToBannedIPs(ip) {
     var newBannedUser = {};
     newBannedUser.ip = ip;
     //save expiry of ban as UTC for simplicity
-    newBannedUser.expiry = new Date() / 1000;
+    newBannedUser.expiry = (new Date() / 1000) + 86400;
     bannedIPs.push(newBannedUser);
 }
 
