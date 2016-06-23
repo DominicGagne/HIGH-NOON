@@ -60,8 +60,9 @@ io.on('connection', function(socket) {
     });
 
     socket.on('banHammer', function() {
-        var address = socket.handshake.headers.address;
-        console.log('BANNED ' + address);
+      console.log("ALL: ", socket);
+      var address = socket.handshake.address;
+        console.log("Banned:" , address);
     });
 
 
