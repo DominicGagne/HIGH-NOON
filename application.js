@@ -45,6 +45,7 @@ app.get('/requestChatName/:name', function(req, res) {
 function isBanned(ip, callback) {
     var numUsersBanned = bannedIPs.length;
     for(var i = 0; i < numUsersBanned; i++) {
+        console.log("Checking: " , ip , " against: ", bannedIPs[i].ip);
         if(bannedIPs[i].ip == ip) {
             //found the user, has their ban expired?
             if((new Date() / 1000) > bannedIPs[i].expiry) {
