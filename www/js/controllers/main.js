@@ -47,9 +47,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     });
 
     socket.on('updateNumZoneUsers', function(numUsers) {
-        if(parseInt(numUsers) > 1) {
-            $scope.zoneUsersMessage = numUsers + 'in ' + $scope.timezone;
-        }
+        $scope.$apply(function() {
+            $scope.zoneUsersMessage = numUsers + ' in ' + $scope.timezone + '.';
+        });
     });
 
     socket.on('message', function(chatMsgObj) {

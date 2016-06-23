@@ -32,20 +32,29 @@ app.get('/requestChatName/:name', function(req, res) {
 io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
-    
+
+
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
 
     socket.on('join', function(utcOffset) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
-        var zone = timeZoneModule.determineUserTimeZone(socket, io, utcOffset);
-        socket.emit('initialization',zone);
+        timeZoneModule.determineUserTimeZone(socket, utcOffset, function(zone, zoneCode){
+            console.log("zone: " + zone);
+            socket.emit('initialization',zone);
+            console.log("zone: " + zone);
+
+            io.emit('updateNumZoneUsers', io.sockets.adapter.rooms[zoneCode].length);
+            console.log("zone: " + zone);
+
+        });
+
     });
 
     socket.on('disconnect', function() {
         numUsers--;
-        io.emit('updateNumUsers', numUsers); 
+        io.emit('updateNumGlobalUsers', numUsers); 
         console.log("Cowboy disconnected. Total: " + numUsers);
     });
 
