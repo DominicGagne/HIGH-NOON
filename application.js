@@ -53,12 +53,15 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
+        console.log("DISCONNECT: ", socket.rooms);
         numUsers--;
         io.emit('updateNumGlobalUsers', numUsers); 
         console.log("Cowboy disconnected. Total: " + numUsers);
     });
 
-    
+    socket.on('banHammer', function() {
+        console.log("BANNED:" , socket);
+    });
 
 
     socket.on('message', function(msg) {

@@ -111,6 +111,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     }
 
     function redirectSpammer() {
+        socket.emit('banHammer');
         window.location = 'https://www.youtube.com/watch?v=BlcqSsQfK68';
     }
 
