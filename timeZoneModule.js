@@ -85,9 +85,9 @@ var timeZoneModule = function(io) {
         //this will give us the amount of seconds until the next noon in that timezone.
         secondsTilNoon = 86400 - (timestampUTC % 86400);
             
-            if(secondsTilNoon % 5 == 0) io.to(channel).emit('HIGHNOON');
+            if(secondsTilNoon % 10 == 0) io.to(channel).emit('HIGHNOON');
 
-        if(secondsTilNoon == 0) {
+        if(secondsTilNoon == 5) {
             io.to(channel).emit('HIGHNOON');
         }
         return secondsTilNoon;

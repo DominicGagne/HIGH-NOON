@@ -18,6 +18,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     var familiar = new Audio('Assets/mccreeFamiliar.mp3');
     var whosATurkey = new Audio('Assets/whoIsTurkeyNow.mp3');
     var overTheLine = new Audio('Assets/jiveTurkey.mp3');
+    var fiveSeconds = new Audio('Assets/fiveSeconds.mp3');
+
 
     var timeTilNoon;
 
@@ -177,11 +179,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.on('HIGHNOON', function(){
         console.log("ITS HIGH NOON BRO!");
+        fiveSeconds.play();
+        setTimeout(function(){itsHighNoon();},5000);
+    });
+
+    function itsHighNoon() {
         noonAudio.play();
         $scope.mcCree = 'Assets/mccree.png';
         setTimeout(function(){resetMcree();},2200);
-
-    });
+    }
 
     function resetMcree() {
         //document.getElementById("mccree").src="";
