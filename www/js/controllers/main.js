@@ -10,11 +10,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     $scope.chatPrompt = null;
 
+    //this should be server side...
+    $scope.targetsHit = 0;
+
     var messagesSentThisInterval = 0;
     var warningsAboutSpam = 0;
 
     var noonAudio = new Audio('Assets/highNoon.mp3');
     var gunshot = new Audio('Assets/mccreeGunshot.mp3');
+    var gunshotTwo = new Audio('Assets/mccreeGunshot.mp3');
     var familiar = new Audio('Assets/mccreeFamiliar.mp3');
     var whosATurkey = new Audio('Assets/whoIsTurkeyNow.mp3');
     var overTheLine = new Audio('Assets/jiveTurkey.mp3');
@@ -32,7 +36,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     socket.on('secondHasPassed', function(timestamp) {
         $scope.$apply(function() {
             $scope.timeTilNoon = formatSeconds(timestamp);
-            console.log("secondHasPassed: " , timestamp);
         });
     });
 
@@ -75,6 +78,16 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $scope.$apply(function() {
             $scope.newRecord = 'New all time high! ' + allTimeHigh + ' Cowboys!';
         });
+    });
+
+    socket.on('winner', function() {
+        console.log("YOU ARE THE WINNER!");
+        $scope.result = 'You won!';
+    });
+
+    socket.on('loser', function() {
+        console.log("YOU LOST!");
+        $scope.result = 'You lost!';
     });
 
 
@@ -161,6 +174,21 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $mdSidenav('right').close();
     };
 
+    $scope.targetHit = function() {
+        console.log("Shot the target!");
+        $scope.targetsHit++;
+        if($scope.targetsHit > 4) {
+            socket.emit('AllTargetsHit');
+        }
+        
+        if(!gunshot.paused) {
+            gunshotTwo.play();
+        } else {
+           gunshot.play();
+        }
+        drawTarget();
+    };
+
     function joinChat(response) {
         $scope.chatName = response.data;
         overTheLine.play();
@@ -186,14 +214,26 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     function itsHighNoon() {
         noonAudio.play();
         $scope.mcCree = 'Assets/mccree.png';
-        setTimeout(function(){resetMcree();},2200);
+        setTimeout(function(){drawTarget();},2000);
     }
 
-    function resetMcree() {
+    function drawTarget() {
+        $scope.mcCree = null;
+        $scope.targetTime = true;
+        $scope.vert = Math.floor((Math.random() * 90) + 10);
+        $scope.hor = Math.floor((Math.random() * 90) + 10);
+        console.log("vert: " , $scope.vert, " hor: " , $scope.hor);
+        $scope.bullseye = 'Assets/bullseye.JPG';
+    }
+
+
+    $scope.resetPage = function() {
         //document.getElementById("mccree").src="";
         console.log("resetting mccree");
+        $scope.result = false;
+        $scope.targetTime = false;
         $scope.mcCree = null;
-    }
+    };
 
 
 });

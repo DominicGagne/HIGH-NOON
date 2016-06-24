@@ -108,6 +108,11 @@ io.on('connection', function(socket) {
         addToBannedIPs(address);
     });
 
+    socket.on('AllTargetsHit', function() {
+        socket.emit('winner');
+        socket.broadcast.emit('loser');
+    });
+
 
     socket.on('message', function(msg) {
         io.emit('message', msg);

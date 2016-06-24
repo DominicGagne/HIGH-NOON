@@ -2,87 +2,102 @@
 <ng-app="Boilerplate">
     
     <body>
-    <div layout="row" layout-fill>
-        <div flex="15" flex-offset="5">
-            <br><br><br><br><br><br>
-            <h2>{{timezone}}</h2>
-            <center>
-                <h2>{{newRecord}}</h2>
-            </center>
-        </div>
-        <div flex="60">
-            <center>
-                <h2><i>It's High Noon, McCree.</i></h2>
-                <i><h1 ng-show="!mcCree">{{timeTilNoon}}</h1></i>
-                <h2 ng-show="!mcCree">{{globalCowboys}}</h2>
-                <h3 ng-show="!mcCree">{{zoneUsersMessage}}</h3>
-                <img ng-show="mcCree" ng-src="{{mcCree}}">
-                <img ng-show="!mcCree" ng-src="{{overwatch}}">
-            </center>
-        </div>
-        <div flex="15" layout="column" layout-align="start start" layout-fill>
-            <div flex="20" flex-offset="30">
-                <center>
-                    <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
-                </center>
+        <div primary  ng-show="!targetTime">
+            <div layout="row" layout-fill>
+                <div flex="15" flex-offset="5">
+                    <br><br><br><br><br><br>
+                    <h2>{{timezone}}</h2>
+                    <center>
+                        <h2>{{newRecord}}</h2>
+                    </center>
+                </div>
+                <div flex="60">
+                    <center>
+                        <h2><i ng-show="!mcCree" >It's High Noon, McCree.</i></h2>
+                        <i><h1 ng-show="!mcCree" >{{timeTilNoon}}</h1></i>
+                        <h2 ng-show="!mcCree" >{{globalCowboys}}</h2>
+                        <h3 ng-show="!mcCree" >{{zoneUsersMessage}}</h3>
+                        <img ng-show="mcCree" ng-src="{{mcCree}}">
+                        <img ng-show="!mcCree" ng-src="{{overwatch}}">
+                    </center>
+                </div>
+               
+                <div flex="15" layout="column" layout-align="start start" layout-fill>
+                    <div flex="20" flex-offset="30">
+                        <center>
+                            <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
+                        </center>
+                    </div>
+                </div>
             </div>
-        </div>
+
+
+            <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right" style="width: 80%;">
+              <md-content layout-padding>
+                  <center><h3>Chat</h3></center>
+                  
+                  <div ng-show="chatName && !chatPrompt">
+                  
+                  <div id="chat" style="height: 50vh; overflow: auto;">
+                      <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center><p>No messages.</p></center></div>
+                      <md-list>
+                          <md-list-item class="md-3-line" ng-repeat="message in messages track by $index">
+                            <div class="md-list-item-text">
+                              <h3>{{message.requestor}}<br>{{message.message}}</h3>
+                              <p>
+                              At {{message.timestamp | date:'hh:mm a'}}
+                              </p>
+                            </div>
+                            <md-divider inset></md-divider>
+                          </md-list-item>
+                        </md-list>
+                      
+                  </div>
+
+                    <form autocomplete="off" ng-submit="sendMessage()">
+                        <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                             <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
+                             <br>
+                             <center>
+                             <md-button ng-disabled="!messageToSend && !chatPrompt" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                             </center>
+                        </md-input-container>
+                    </form>
+                 </div>
+                 <div ng-show="chatPrompt">
+                     <center><h3>{{chatPrompt}}</h3></center>
+                 </div>
+                 <div ng-show="! chatName">
+                    <center><h3>Create a Username to get started!</h3></center>
+                    <form autocomplete="off" ng-submit="requestChatName()">
+                        <md-input-container style="width:50%; margin:auto;" form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                             <input ng-maxlength="12" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
+                             <br>
+                             <center>
+                             <md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
+                             </center>
+                         </md-input-container>
+                     </form>
+                 </div>
+
+                <md-button ng-click="closeChat()" class="md-primary">
+                  Close Chat
+                </md-button>
+              </md-content>
+            </md-sidenav>
+    </div>
+    <div ng-show="targetTime && !result">
+        <center>  <h2>Shoot the targets!<br> {{targetsHit}} of 5</h2></center>
+        <img ng-src="{{bullseye}}" height="30" width="30" style="top:{{vert}}%; left:{{hor}}%; position:absolute;" ng-click="targetHit()">
+    </div>
+        <div ng-show="result">
+        <center>
+            <h1>{{result}}</h1><br><br>
+            <md-button ng-click="resetPage()" class="md-raised md-default">Continue</md-button>
+        </center>
+        
     </div>
 
-
-    <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right" style="width: 80%;">
-      <md-content layout-padding>
-          <center><h3>Chat</h3></center>
-          
-          <div ng-show="chatName && !chatPrompt">
-          
-          <div id="chat" style="height: 50vh; overflow: auto;">
-              <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center><p>No messages.</p></center></div>
-              <md-list>
-                  <md-list-item class="md-3-line" ng-repeat="message in messages track by $index">
-                    <div class="md-list-item-text">
-                      <h3>{{message.requestor}}<br>{{message.message}}</h3>
-                      <p>
-                      At {{message.timestamp | date:'hh:mm a'}}
-                      </p>
-                    </div>
-                    <md-divider inset></md-divider>
-                  </md-list-item>
-                </md-list>
-              
-          </div>
-
-            <form autocomplete="off" ng-submit="sendMessage()">
-                <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                     <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
-                     <br>
-                     <center>
-                     <md-button ng-disabled="!messageToSend && !chatPrompt" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
-                     </center>
-                </md-input-container>
-            </form>
-         </div>
-         <div ng-show="chatPrompt">
-             <center><h3>{{chatPrompt}}</h3></center>
-         </div>
-         <div ng-show="! chatName">
-            <center><h3>Create a Username to get started!</h3></center>
-            <form autocomplete="off" ng-submit="requestChatName()">
-                <md-input-container style="width:50%; margin:auto;" form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                     <input ng-maxlength="12" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
-                     <br>
-                     <center>
-                     <md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
-                     </center>
-                 </md-input-container>
-             </form>
-         </div>
-
-        <md-button ng-click="closeChat()" class="md-primary">
-          Close Chat
-        </md-button>
-      </md-content>
-    </md-sidenav>
 
 </body>
 </html>
