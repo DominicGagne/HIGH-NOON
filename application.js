@@ -85,12 +85,10 @@ io.on('connection', function(socket) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
         timeZoneModule.determineUserTimeZone(socket, utcOffset, function(zone, zoneCode){
-            console.log("zone: " + zone);
             socket.emit('initialization',zone);
             console.log("zone: " + zone);
 
             io.emit('updateNumZoneUsers', io.sockets.adapter.rooms[zoneCode].length);
-            console.log("zone: " + zone);
 
         });
 

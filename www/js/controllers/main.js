@@ -6,6 +6,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.messageToSend = '';
     $scope.potentialChatName = '';
     $scope.timeTilNoon = 'LOADING...';
+    $scope.overwatch = 'Assets/overwatchBack.jpg';
 
     $scope.chatPrompt = null;
 
@@ -40,15 +41,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.on('updateNumGlobalUsers', function(numUsers) {
         if(parseInt(numUsers) > 1) {
-            document.getElementById("numUsers").innerHTML = numUsers + " cowboys here globally.";
+            $scope.globalCowboys = numUsers + " cowboys here globally.";
         } else {
-            document.getElementById("numUsers").innerHTML = numUsers + " cowboy here globally.";
+            $scope.globalCowboys = numUsers + " cowboy here globally.";
         }
     });
 
     socket.on('updateNumZoneUsers', function(numUsers) {
         $scope.$apply(function() {
-            $scope.zoneUsersMessage = numUsers + ' in ' + $scope.timezone + '.';
+            $scope.zoneUsersMessage = numUsers + ' in your timezone.';
         });
     });
 
@@ -174,8 +175,18 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
     }
 
+    socket.on('HIGHNOON', function(){
+        console.log("ITS HIGH NOON BRO!");
+        noonAudio.play();
+        $scope.mcCree = 'Assets/mccree.png';
+        setTimeout(function(){resetMcree();},2200);
+
+    });
+
     function resetMcree() {
-        document.getElementById("mccree").src="";
+        //document.getElementById("mccree").src="";
+        console.log("resetting mccree");
+        $scope.mcCree = null;
     }
 
 

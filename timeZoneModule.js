@@ -2,209 +2,79 @@ var timeZoneModule = function(io) {
 
     var self = this;
 
+    //all timezones, ordered from greatest positive UTC offset to greatest negative UTC offset.
+    var oderedTimeZones = [];
+
+    primaryInitialization();
+
+    function primaryInitialization() {
+        oderedTimeZones.push(initializeTimeZoneObject('Baker Island Time', 'BIT', 720));
+        oderedTimeZones.push(initializeTimeZoneObject('Niue Time', 'NUT', 660));
+        oderedTimeZones.push(initializeTimeZoneObject('Cook Island Time', 'CKT', 600));
+        oderedTimeZones.push(initializeTimeZoneObject('Alaska Standard Time', 'AKST', 540));
+        oderedTimeZones.push(initializeTimeZoneObject('Pacific Standard Time', 'PST', 480));
+        oderedTimeZones.push(initializeTimeZoneObject('Pacific Daylight Time', 'PDT', 420));
+        oderedTimeZones.push(initializeTimeZoneObject('Mountain Time', 'MNT', 360));
+        oderedTimeZones.push(initializeTimeZoneObject('Central Time', 'ECT', 300));
+        oderedTimeZones.push(initializeTimeZoneObject('Eastern Time', 'EDT', 240));
+        oderedTimeZones.push(initializeTimeZoneObject('Atlantic Time', 'ALT', 180));
+        oderedTimeZones.push(initializeTimeZoneObject('South Georgia and the South Sandwich Islands', 'GST', 120));
+        oderedTimeZones.push(initializeTimeZoneObject('Cape Verde Time', 'CVT', 60));
+        oderedTimeZones.push(initializeTimeZoneObject('Universal Coordinated Time', 'UTC', 0));
+        oderedTimeZones.push(initializeTimeZoneObject('Central European Time', 'CET', -60));
+        oderedTimeZones.push(initializeTimeZoneObject('Heure Avancée d\'Europe Centrale', 'CAT', -120));
+        oderedTimeZones.push(initializeTimeZoneObject('East African Time', 'EAT', - 180));
+        oderedTimeZones.push(initializeTimeZoneObject('Azerbaijan Time', 'AZT', -240));
+        oderedTimeZones.push(initializeTimeZoneObject('Heard and McDonald Island Time', 'HMT', -300));
+        oderedTimeZones.push(initializeTimeZoneObject('Bangladesh Standard Time', 'BST', -360));
+        oderedTimeZones.push(initializeTimeZoneObject('Christmas Island Time', 'CXT', -420));
+        oderedTimeZones.push(initializeTimeZoneObject('China Standard Time', 'CHST', -480));
+        oderedTimeZones.push(initializeTimeZoneObject('Japan Standard Time', 'JST', -540));
+        oderedTimeZones.push(initializeTimeZoneObject('Australian Eastern Time', 'AEST', -600));
+        oderedTimeZones.push(initializeTimeZoneObject('Lord Howe Summer Time', 'LHST', -660));
+        oderedTimeZones.push(initializeTimeZoneObject('New Zealand Time', 'NZT', -720));
+    }
+
+    function initializeTimeZoneObject(zoneName, zoneCode, offset) {
+        var newZone = {};
+        newZone.name = zoneName;
+        newZone.code = zoneCode;
+        newZone.offset = offset;
+        return newZone;
+    }
+
     self.determineUserTimeZone = function(socket, utcOffset, callback) {
-
-        console.log("utcOffset (minute): ", utcOffset);
-        //utc offset is given in minutes.
-        
-        //no way around this, we're going to need a massive switch statement.
-        
-        switch(utcOffset) {
-            case 720: {
-              //Is this even possible?
-
-              //Baker Island Time
-              //BIT
-              socket.join('BIT');
-              return callback('Baker Island Time', 'BIT');
-          }
-          case 660: {
-              //Niue Time
-              //NUT
-              socket.join('NUT');
-              return callback('Niue Time', 'NUT');
-          }
-          case 600: {
-              //Cook Island Time
-              //CKT
-              socket.join('CKT');
-              return callback('Cook Island Time', 'CKT');
-          }
-          case 540: {
-              //Alaska Standard Time
-              //AKST
-              socket.join('AKST');
-              return callback('Alaska Standard Time', 'AKST');
-          }
-          case 480: {
-              //Pacific Standard Time
-              //PST
-              socket.join('PST');
-              return callback('Pacific Standard Time', 'PST');
-          }
-          case 420: {
-              //Mountain Standard Time
-              //MST
-              socket.join('MST');
-              return callback('Mountain Standard Time', 'MST');
-          }
-          case 360: {
-              //Galapagos Time
-              //GALT
-              socket.join('GALT');
-              return callback('Galapagos Time', 'GALT');
-          }
-          case 300: {
-              //Ecuador Time
-              //ECT
-              socket.join('ECT');
-              return callback('Ecuador Time', 'ECT');
-          }
-          case 240: {
-              //Eastern Daylight Time
-              //EDT
-              console.log("Joined EDT.");
-              socket.join('EDT');
-              return callback('Eastern Time', 'EDT');
-          }
-          case 180: {
-              //Argentina Time
-              //ART
-              socket.join('ART');
-              return callback('Argentina Time', 'ART');
-          }
-          case 120: {
-              //South Georgia and the South Sandwich Islands (this sounds like a damn novel lol)
-              //GST
-              socket.join('GST');
-              return callback('South Georgia and the South Sandwich Islands', 'GST');
-          }
-          case 60: {
-              //Cape Verde Time
-              //CVT
-              socket.join('CVT');
-              return callback('Cape Verde Time', 'CVT');
-          }
-          case 0: {
-              //Universal Coordinated Time
-              //UTC
-              socket.join('UTC');
-              return callback('Universal Coordinated Time', 'UTC');
-          }
-          case -60: {
-              //Central European Time
-              //CET
-              socket.join('CET');
-              return callback('Central European Time', 'CET');
-          }
-          case -120: {
-              //Central African Time
-              //CAT
-              socket.join('CAT');
-              return callback('Heure Avancée d\'Europe Centrale', 'CAT');
-          }
-          case -180: {
-              //East Africa Time
-              //EAT
-              socket.join('EAT');
-              return callback('East African Time', 'EAT');
-          }
-          case -240: {
-              //Azerbaijan Time
-              //AZT
-              socket.join('AZT');
-              return callback('Azerbaijan Time', 'AZT');
-          }
-          case -300: {
-              //Heard and McDonald Island Time
-              //HMT
-              socket.join('HMT');
-              return callback('Heard and McDonald Island Time', 'HMT');
-          }
-          case -360: {
-              //Bangladesh Standard Time
-              //BST
-              socket.join('BST');
-              return callback('Bangladesh Standard Time', 'BST');
-          }
-          case -420: {
-              //Christmas Island Time
-              //CXT
-              socket.join('CXT');
-              return callback('Christmas Island Time', 'CXT');
-          }
-          case -480: {
-              //ASEAN Common Time
-              //ACT
-              socket.join('ACT');
-              return callback('ASEAN Common Time', 'ACT');
-          } 
-          case -540: {
-              //Japan Standard Time
-              //JST
-              socket.join('JST');
-              return callback('Japan Standard Time', 'JST');
-          } 
-          case -600: {
-              //Eastern Standard Time (Australia)
-              //AEST
-              socket.join('AEST');
-              return callback('Australian Eastern Standard Time', 'AEST');
-          }
-          case -660: {
-              //Lord Howe Summer Time
-              //LHST
-              socket.join('LHST');
-              return callback('Lord Howe Summer Time', 'LHST');
-          }
-          case 12: {
-              //is this possible?
-              return callback(null);
-          }
-          default: {
-              //zone not found!  Could be one of those weird half zones?
-              //is break needed?
-              return callback(null);
-          }
+        var i = 0;
+        for(i = 0; i < 25; i++) {
+                if(utcOffset == oderedTimeZones[i].offset) {
+                //found their timezone.
+                socket.join(oderedTimeZones[i].code);
+                return callback(oderedTimeZones[i].name, oderedTimeZones[i].code);
+            }
         }
+        //no zone found for this user.
+        return callback(null);
     };
 
 
-
-    //timststamp for UTCin seconds.  Emit offset to all timezones.
+    //timststamp for UTC in seconds.  Emit offset to all timezones.
     self.globalTimestampEmit = function(timestampUTC) {
            
-            console.log("Server side UTC timestamp: ", timestampUTC);
+            //need to check HIGH NOON
 
-            //Is BIT timezone even possible?  Not the same as UTC?
-            io.to('BIT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 43200));
-            io.to('NUT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 39600));
-            io.to('CKT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 36000));
-            io.to('AKST').emit('secondHasPassed', secondsTilNoon(timestampUTC, 32400));
-            io.to('PST').emit('secondHasPassed', secondsTilNoon(timestampUTC, 28800));
-            io.to('MST').emit('secondHasPassed', secondsTilNoon(timestampUTC, 25200));
-            io.to('GALT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 21600));
-            io.to('ECT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 18000));
-            io.to('EDT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 14400));
-            io.to('ART').emit('secondHasPassed', secondsTilNoon(timestampUTC, 10800));
-            io.to('GST').emit('secondHasPassed', secondsTilNoon(timestampUTC, 7200));
-            io.to('CVT').emit('secondHasPassed', secondsTilNoon(timestampUTC, 3600));
-            io.to('UTC').emit('secondHasPassed', secondsTilNoon(timestampUTC));
-            io.to('CET').emit('secondHasPassed', secondsTilNoon(timestampUTC, -3600));
-            io.to('CAT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -7200));
-            io.to('EAT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -10800));
-            io.to('AZT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -14400));
-            io.to('HMT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -18000));
-            io.to('BST').emit('secondHasPassed', secondsTilNoon(timestampUTC, -21600));
-            io.to('CXT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -25200));
-            io.to('ACT').emit('secondHasPassed', secondsTilNoon(timestampUTC, -28800));
-            io.to('JST').emit('secondHasPassed', secondsTilNoon(timestampUTC, -32400));
-            io.to('AEST').emit('secondHasPassed', secondsTilNoon(timestampUTC, -36000));
-            io.to('LHST').emit('secondHasPassed', secondsTilNoon(timestampUTC, -39600));
+            var i = 0;
+            var offset = 43200;
+            for(i = 0; i < 25; i++) {
+                //console.log("Name: ", oderedTimeZones[i].name, " code: ", oderedTimeZones[i].code);
+                io.to(oderedTimeZones[i].code).emit('secondHasPassed', 
+                findSecondsTilNoon(timestampUTC, offset, oderedTimeZones[i].code));
+                offset = offset - 3600;
+            }
     };
 
 
-    function secondsTilNoon(timestampUTC, timeZoneOffset) {
+    function findSecondsTilNoon(timestampUTC, timeZoneOffset, channel) {
+        var secondsTilNoon;
         //account for timezone offset
         timestampUTC = timestampUTC - timeZoneOffset;
 
@@ -213,7 +83,14 @@ var timeZoneModule = function(io) {
         
         //subtract seconds in a day by how many seconds have passed since the last noon (modulo)
         //this will give us the amount of seconds until the next noon in that timezone.
-        return 86400 - (timestampUTC % 86400);
+        secondsTilNoon = 86400 - (timestampUTC % 86400);
+            
+            if(secondsTilNoon % 5 == 0) io.to(channel).emit('HIGHNOON');
+
+        if(secondsTilNoon == 0) {
+            io.to(channel).emit('HIGHNOON');
+        }
+        return secondsTilNoon;
 
     }
 
@@ -222,16 +99,4 @@ var timeZoneModule = function(io) {
 
 
 module.exports = timeZoneModule;
-
-
-
-
-
-
-
-
-
-
-
-
 
