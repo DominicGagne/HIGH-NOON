@@ -23,6 +23,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     var whosATurkey = new Audio('Assets/whoIsTurkeyNow.mp3');
     var overTheLine = new Audio('Assets/jiveTurkey.mp3');
     var fiveSeconds = new Audio('Assets/fiveSeconds.mp3');
+    var westWasWon = new Audio('Assets/westWasWon.mp3');
 
 
     var timeTilNoon;
@@ -83,6 +84,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     socket.on('winner', function() {
         console.log("YOU ARE THE WINNER!");
         $scope.result = 'You won!';
+        westWasWon.play();
     });
 
     socket.on('loser', function() {
