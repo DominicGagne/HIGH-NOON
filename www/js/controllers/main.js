@@ -230,6 +230,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.resetPage = function() {
         //document.getElementById("mccree").src="";
         console.log("resetting mccree");
+        $scope.targetsHit = 0;
         $scope.result = false;
         $scope.targetTime = false;
         $scope.mcCree = null;
