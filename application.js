@@ -10,6 +10,14 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 
+
+//load the database module, and allow for connections to be made.
+var databaseModule = require('./database.js');
+var database = new databaseModule(mysql);
+database.acquireConnection();
+
+
+var totalVisitors = 0;
 var numUsers = 0;
 var allTimeHigh = 0;
 var activeSockets = [];
@@ -22,6 +30,8 @@ var timeZoneModule = new timeZoneUnit(io);
 
 //do a synchronous read of the stats file upon program initialization.
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
+
+database.fetchFirst("SELECT COUNT(*) AS totalVisitors FROM Stats", [], setVisitors);
 
 
 
@@ -110,6 +120,12 @@ function addToBannedIPs(ip) {
     //save expiry of ban as UTC for simplicity
     newBannedUser.expiry = (new Date() / 1000) + 86400;
     bannedIPs.push(newBannedUser);
+}
+
+function setVisitors(data) {
+    //error checking in database module?
+    console.log("VISITORS: ", data);
+    totalVisitors = data.totalVisitors;
 }
 
 
