@@ -22,17 +22,17 @@ console.log("All time high: " + allTimeHigh);
 
 var point;
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/www/index.html');
+  //res.sendFile(__dirname + '/www/index.html');
   console.log("THIS USER: " , req.connection.remoteAddress);
     console.log("Banned users: ", bannedIPs);
     
-    /*isBanned(req.ip, function(banned) {
+    isBanned(req.ip, function(banned) {
         if(banned) {     
            res.sendFile(__dirname + '/www/banned.html');
         } else {
             res.sendFile(__dirname + '/www/index.html');
         }
-    });*/ 
+    });
 });
 
 app.get('/requestChatName/:name', function(req, res) {
@@ -68,6 +68,7 @@ function isBanned(ip, callback) {
 function addToBannedIPs(ip) {
     var newBannedUser = {};
     newBannedUser.ip = ip;
+    console.log("Adding to banned users.");
     //save expiry of ban as UTC for simplicity
     newBannedUser.expiry = (new Date() / 1000) + 86400;
     bannedIPs.push(newBannedUser);
@@ -81,7 +82,11 @@ io.on('connection', function(socket) {
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
 
+    console.log("ALSO: " , socket.handshake.address);
+
+
     socket.on('join', function(utcOffset) {
+
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
         timeZoneModule.determineUserTimeZone(socket, utcOffset, function(zone, zoneCode){
@@ -95,14 +100,14 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-        console.log("DISCONNECT: ", socket);
+        //console.log("DISCONNECT: ", socket);
         numUsers--;
         io.emit('updateNumGlobalUsers', numUsers); 
         console.log("Cowboy disconnected. Total: " + numUsers);
     });
 
     socket.on('banHammer', function() {
-        console.log("ALL: ", socket);
+        //console.log("ALL: ", socket);
         var address = socket.handshake.address;
         console.log("Banned:" , address);
         addToBannedIPs(address);

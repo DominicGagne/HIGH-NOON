@@ -84,7 +84,12 @@ var timeZoneModule = function(io) {
         //subtract seconds in a day by how many seconds have passed since the last noon (modulo)
         //this will give us the amount of seconds until the next noon in that timezone.
         secondsTilNoon = 86400 - (timestampUTC % 86400);
-            
+
+        if(secondsTilNoon % 30 == 0) {
+            io.to(channel).emit('HIGHNOON');
+        }
+           
+        //setTimeout(function(){cooldownForSpammers();}, 15000);
         if(secondsTilNoon == 5) {
             io.to(channel).emit('HIGHNOON');
         }
