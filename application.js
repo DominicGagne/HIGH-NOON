@@ -5,6 +5,11 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 
+var mysql = require('mysql');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+
 var numUsers = 0;
 var allTimeHigh = 0;
 var activeSockets = [];
