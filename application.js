@@ -7,7 +7,7 @@ var fs = require('fs');
 
 var numUsers = 0;
 var allTimeHigh = 0;
-var activeNames = [];
+var activeSockets = [];
 
 //stop passing all this stuff around globally...make modules...please...
 var bannedIPs = [];
@@ -18,12 +18,38 @@ var timeZoneModule = new timeZoneUnit(io);
 //do a synchronous read of the stats file upon program initialization.
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
 
+
+
+//put this stuff into a module...
+var mcCreeData;
+var bullseyeData;
+
+fs.readFile(__dirname + '/Assets/mccree.png', function(err, imageData) {
+    if(err) {
+        console.log("error reading input.");
+        throw err;
+    } else {
+       mcCreeData = new Buffer(imageData).toString('base64');
+    }
+});
+
+fs.readFile(__dirname + '/Assets/bullseye.JPG', function(err, imageData) {
+    if(err) {
+        console.log("error reading input.");
+        throw err;
+    } else {
+        bullseyeData = new Buffer(imageData).toString('base64');
+    }
+});
+
+
 console.log("All time high: " + allTimeHigh);
 
 var point;
 app.get('/', function(req, res) {
   //res.sendFile(__dirname + '/www/index.html');
   console.log("THIS USER: " , req.connection.remoteAddress);
+  //console.log("REQ CONNECTION: ", req.connection);
     console.log("Banned users: ", bannedIPs);
     
     isBanned(req.ip, function(banned) {
@@ -35,9 +61,16 @@ app.get('/', function(req, res) {
     });
 });
 
+app.get('/init', function(req, res) {
+    var payload = [];
+    payload.push(mcCreeData);
+    payload.push(bullseyeData);
+    res.status(200).send(payload);
+});
+
 app.get('/requestChatName/:name', function(req, res) {
     //for now, send back success.
-    addToActiveNames(req.params.name);
+    //addToActiveNames(req.params.name);
     res.status(200).send(req.params.name);
 });
 
@@ -79,6 +112,11 @@ io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
 
+    socket.mycustom = 'hi!';
+    console.log("WOW: ",socket.mycustom);
+
+    addToActiveSockets(socket.id);
+
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
 
@@ -103,6 +141,7 @@ io.on('connection', function(socket) {
         //console.log("DISCONNECT: ", socket);
         numUsers--;
         io.emit('updateNumGlobalUsers', numUsers); 
+        removeFromActiveSockets(socket.id);
         console.log("Cowboy disconnected. Total: " + numUsers);
     });
 
@@ -120,6 +159,9 @@ io.on('connection', function(socket) {
 
 
     socket.on('message', function(msg) {
+    console.log("AND: ",socket.mycustom);
+
+        //incrementMessageCount(socket.id);
         io.emit('message', msg);
     });
 });
@@ -136,18 +178,41 @@ function checkRecords() {
     }
 }
 
-function addToActiveNames(userName) {
-    activeNames.push(userName);
-    console.log("active users: " + JSON.stringify(activeNames));
+function addToActiveSockets(socketID) {
+    var newUser = {};
+    newUser.socketID = socketID;
+    newUser.messagesThisInterval = 0;
+    activeSockets.push(newUser);
+    console.log("active users: " + JSON.stringify(activeSockets));
 }
 
-function removeFromActiveNames(userName) {
-    activeNames.splice(userName, 1);
-    console.log("active users: " + JSON.stringify(activeNames));
+function removeFromActiveSockets(socketID) {
+    console.log("Removing: ", socketID, " at: ", activeSockets.indexOf(socketID));
+    activeSockets.splice(activeSockets.indexOf(socketID), 1);
+    //console.log("\n\nactive users: " + JSON.stringify(activeSockets));
 }
 
+function incrementMessageCount(socketID) {
+    console.log("DATA: ", activeSockets.indexOf(socketID) );
+    activeSockets[activeSockets.indexOf(socketID)].messagesThisInterval++;
+}
+
+//this function is dedicated to Corey
+function monitorSpam() {
+    var numSockets = activeSockets.length;
+
+    for(var i = 0; i < numSockets; i++) {
+        console.log("socket: ", activeSockets[i]);
+    }
+    console.log("\n\n\n");
+}
+
+
+
+//hearbeat tick of the entire application
 setInterval(function () {
     timeZoneModule.globalTimestampEmit(parseInt(new Date() / 1000));
+    monitorSpam();
 }, 1000);
 
 

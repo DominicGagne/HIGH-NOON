@@ -13,19 +13,30 @@
                 </div>
                 <div flex="60">
                     <center>
-                        <h2><i ng-show="!mcCree" >It's High Noon, McCree.</i></h2>
-                        <i><h1 ng-show="!mcCree" >{{timeTilNoon}}</h1></i>
-                        <h2 ng-show="!mcCree" >{{globalCowboys}}</h2>
-                        <h3 ng-show="!mcCree" >{{zoneUsersMessage}}</h3>
-                        <img ng-show="mcCree" ng-src="{{mcCree}}">
-                        <img ng-show="!mcCree" ng-src="{{overwatch}}">
+                        <h2><i ng-show="!displayMcCree" >It's High Noon, McCree.</i></h2>
+                        <i><h1 ng-show="!displayMcCree" >{{timeTilNoon}}</h1></i>
+                        <h2 ng-show="!displayMcCree">{{globalCowboys}}</h2>
+                        <h3 ng-show="!displayMcCree">{{zoneUsersMessage}}</h3>
+                        <img ng-show="displayMcCree" data-ng-src="data:image/png;base64,{{mcCree}}">
+                        <span ng-show="!displayMcCree">
+                            <br><br><br><br><br><h2 style="display:inline;">Developed by</h2><br>
+                            <a ng-href="https://google.ca">
+                                <img src="Assets/fireAntThree.png" style="height:50%; width:50%;">
+                            </a>
+                        </span>
+
                     </center>
                 </div>
                
                 <div flex="15" layout="column" layout-align="start start" layout-fill>
                     <div flex="20" flex-offset="30">
                         <center>
-                            <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
+
+                                <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
+
+                                <md-button aria-label="Logout" class="md-raised" ng-click="home.logout()">        
+                                  Logout
+                                </md-button>
                         </center>
                     </div>
                 </div>
@@ -88,7 +99,7 @@
     </div>
     <div ng-show="targetTime && !result">
         <center>  <h2>Shoot the targets!<br> {{targetsHit}} of 5</h2></center>
-        <img ng-src="{{bullseye}}" height="30" width="30" style="top:{{vert}}%; left:{{hor}}%; position:absolute;" ng-click="targetHit()">
+        <img data-ng-src="data:image/jpg;base64,{{bullseye}}" height="30" width="30" style="top:{{vert}}%; left:{{hor}}%; position:absolute;" ng-click="targetHit()">
     </div>
         <div ng-show="result">
         <center>

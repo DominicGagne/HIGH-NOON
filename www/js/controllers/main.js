@@ -92,6 +92,22 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $scope.result = 'You lost!';
     });
 
+    initialization();
+    function initialization() {
+        $http.get('/init').then(initSuccess, initFailure);
+    }
+
+    function initSuccess(response) {
+        console.log("initSuccess");
+        $scope.mcCree = response.data[0];
+        $scope.bullseye = response.data[1];
+    }
+
+    function initFailure() {
+        //TODO
+        console.log("initialization failure from server.");
+    }
+
 
 
     function monitorSpam() {
@@ -207,35 +223,37 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
     }
 
-    socket.on('HIGHNOON', function(){
-        console.log("ITS HIGH NOON BRO!");
+    socket.on('COUNTDOWN', function(){
+        console.log("ITS COUNTDOWN TIME BRO!");
         fiveSeconds.play();
         setTimeout(function(){itsHighNoon();},5000);
     });
 
+    //why don't we pass in the function name and compile on the fly? would prevent 'hackers'...
+    socket.on('DISPLAYBULLSEYE', function(token){
+        console.log("BULLSEYE TIME!");
+        drawTarget();
+    });
+
     function itsHighNoon() {
         noonAudio.play();
-        $scope.mcCree = 'Assets/mccree.png';
-        setTimeout(function(){drawTarget();},2000);
+        $scope.displayMcCree = true;
     }
 
     function drawTarget() {
-        $scope.mcCree = null;
+        $scope.displayMcCree = false;
         $scope.targetTime = true;
         $scope.vert = Math.floor((Math.random() * 90) + 10);
         $scope.hor = Math.floor((Math.random() * 90) + 10);
         console.log("vert: " , $scope.vert, " hor: " , $scope.hor);
-        $scope.bullseye = 'Assets/bullseye.JPG';
     }
 
 
     $scope.resetPage = function() {
-        //document.getElementById("mccree").src="";
         console.log("resetting mccree");
         $scope.targetsHit = 0;
         $scope.result = false;
         $scope.targetTime = false;
-        $scope.mcCree = null;
     };
 
 

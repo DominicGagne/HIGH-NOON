@@ -48,6 +48,9 @@ High Noon
 <style>
 
 @font-face { font-family: OVERWATCH; src: url('Assets/big_noodle_titling_oblique.ttf'); } 
+@font-face { font-family: HEAVY; src: url('Assets/SFArborcrestHeavy.ttf'); } 
+@font-face { font-family: LIGHT; src: url('Assets/SFArborcrestLight.ttf'); } 
+
 h1 {
     font-family: OVERWATCH;
     font-size:600%;
@@ -67,12 +70,33 @@ p3 {
     font-family: OVERWATCH;
     font-size:120%;
 }
+
+h {
+    font-family: HEAVY;
+    font-size:530%;
+    display:inline;
+}
+
+l {
+    font-family: LIGHT;
+    font-size:530%;
+    display:inline;
+}
+
+text {
+  margin-left:1.2%;
+}
+
+}
+
+
 </style>
 
 </head>
-<body>
+<body ng-style="{'background':'white'}">
 
-<div ng-view="">              
+
+<div ng-style="{'background':'white'}" ng-view="">              
 </div>
 
 </body>
