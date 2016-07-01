@@ -10,12 +10,21 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({limit: "5mb", extended: true, parameterLimit:5000}));
+app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+
+
 
 //load the database module, and allow for connections to be made.
 var databaseModule = require('./database.js');
 var database = new databaseModule(mysql);
 database.acquireConnection();
 
+var authenticationModule = require('./authentication.js');
+var authenticationStrategies = new authenticationModule(app, passport, LocalStrategy, database);
+authenticationStrategies.initializeAuthentication();
 
 var totalVisitors = 0;
 var numUsers = 0;
@@ -32,6 +41,7 @@ var timeZoneModule = new timeZoneUnit(io);
 allTimeHigh = parseInt(fs.readFileSync('visitors.txt'));
 
 database.fetchFirst("SELECT COUNT(*) AS totalVisitors FROM Stats", [], setVisitors);
+
 
 
 
@@ -61,6 +71,22 @@ fs.readFile(__dirname + '/Assets/bullseye.JPG', function(err, imageData) {
 console.log("All time high: " + allTimeHigh);
 
 var point;
+
+app.post('/login',
+  passport.authenticate('local'),
+  function(req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    console.log("authenticated!");
+    console.log("body: " , req.body);
+    res.send("Success!");
+    //res.redirect('/users/' + req.user.username);
+  });
+
+app.get('/test', authenticationStrategies.ensureAuthenticated, function(req, res) {
+    console.log("Good auth.");
+});
+
 app.get('/', function(req, res) {
   //res.sendFile(__dirname + '/www/index.html');
   console.log("THIS USER: " , req.connection.remoteAddress);
@@ -75,6 +101,7 @@ app.get('/', function(req, res) {
         }
     });
 });
+
 
 app.get('/init', function(req, res) {
     var payload = [];
@@ -128,6 +155,15 @@ function setVisitors(data) {
     totalVisitors = data.totalVisitors;
 }
 
+function updatedVisitors(err, updatedID) {
+    if (err) {
+        console.log("err from visitor insert.", err);
+    } else {
+        totalVisitors++;
+        io.emit('updateTotalVisitors', totalVisitors);
+    }
+}
+
 
 io.on('connection', function(socket) {
     numUsers++;
@@ -149,9 +185,14 @@ io.on('connection', function(socket) {
         //utcOffset is supplied in minutes
         console.log("offset: ", utcOffset); 
         timeZoneModule.determineUserTimeZone(socket, utcOffset, function(zone, zoneCode){
-            socket.emit('initialization',zone);
+            var initObj = {};
+            initObj.timezone = zone;
+            socket.emit('initialization',initObj);
+            database.insertOrUpdate("INSERT INTO Stats (VisitorZone, NetworkIP) VALUES (?,?)", [zoneCode, socket.handshake.address], updatedVisitors);
+
             console.log("zone: " + zone);
 
+            //find a way to update number of users upon leaving the timezone channel.
             io.emit('updateNumZoneUsers', io.sockets.adapter.rooms[zoneCode].length);
 
         });
@@ -233,7 +274,7 @@ function monitorSpam() {
 //hearbeat tick of the entire application
 setInterval(function () {
     timeZoneModule.globalTimestampEmit(parseInt(new Date() / 1000));
-    monitorSpam();
+    //monitorSpam();
 }, 1000);
 
 

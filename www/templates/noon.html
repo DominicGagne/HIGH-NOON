@@ -2,13 +2,28 @@
 <ng-app="Boilerplate">
     
     <body>
-        <div primary  ng-show="!targetTime">
+        <div primary ng-show="!targetTime">
             <div layout="row" layout-fill>
                 <div flex="15" flex-offset="5">
                     <br><br><br><br><br><br>
-                    <h2>{{timezone}}</h2>
                     <center>
-                        <h2>{{newRecord}}</h2>
+                        <h2>
+                            {{timezone}}<br>
+                            {{newRecord}}<br>
+                            <span ng-show="totalVisitors">
+                                Total visitors: {{totalVisitors}}
+                            </span>
+                            <span ng-show="! totalVisitors">
+                                Initializing...
+                            </span>
+                        </h2>
+
+                         <form novalidate class="simple-form">
+                            Name: <input type="text" ng-model="user.username" /><br />
+                            E-mail: <input type="password" ng-model="user.password" /><br />
+                            <input type="submit" ng-click="login(user)" value="Login" />
+                          </form>
+                          <pre>{{user}}</pre>
                     </center>
                 </div>
                 <div flex="60">
@@ -31,10 +46,14 @@
                 <div flex="15" layout="column" layout-align="start start" layout-fill>
                     <div flex="20" flex-offset="30">
                         <center>
-
+                        <br><br><br><br><br><br>
                                 <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
 
-                                <md-button aria-label="Logout" class="md-raised" ng-click="home.logout()">        
+                                <md-button aria-label="Logout" class="md-raised" ng-click="test()">        
+                                  TEST
+                                </md-button>
+
+                                <md-button aria-label="Logout" class="md-raised" ng-click="logout()">     
                                   Logout
                                 </md-button>
                         </center>

@@ -42,7 +42,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.on('initialization', function(initObject) {
         //more details to add here?  Add attributes to object.
-        $scope.timezone = initObject;
+        $scope.timezone = initObject.timezone;
     });
 
     socket.on('updateNumGlobalUsers', function(numUsers) {
@@ -90,6 +90,12 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     socket.on('loser', function() {
         console.log("YOU LOST!");
         $scope.result = 'You lost!';
+    });
+
+    socket.on('updateTotalVisitors', function(totalVisitors) {
+        $scope.$apply(function() {
+            $scope.totalVisitors = totalVisitors;
+        });
     });
 
     initialization();
@@ -183,7 +189,25 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         resetChatInterval();
     };
 
-    $scope.requestChatName = function() {
+    $scope.login = function(user) {
+        $http.post('/login', {"username":user.username, "password":user.password}).then(function(response) {
+            console.log("logged in.");
+        }, function(response) {
+            console.log("error from server.");
+            console.log(response);
+        });
+    };
+
+    $scope.test = function() {
+        $http.get('/test').then(function(response) {
+                console.log("passed.");
+            }, function(response) {
+                console.log("error from server.");
+                console.log(response);
+            });
+    };
+
+        $scope.requestChatName = function() {
         $http.get('/requestChatName/' + $scope.potentialChatName).then(joinChat, rejectedFromChat);
     };
 
