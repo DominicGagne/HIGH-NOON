@@ -11,7 +11,7 @@
                             Zone: {{timezone}}<br>
                             {{newRecord}}<br>
                             <span ng-show="totalVisitors">
-                                Total visitors: {{totalVisitors}}
+                                Aggregate visitors: {{totalVisitors}}
                             </span>
                             <span ng-show="! totalVisitors">
                                 Initializing...
@@ -146,7 +146,7 @@
                              <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
                              <br>
                              <center>
-                             <md-button ng-disabled="!messageToSend && !chatPrompt" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                             <md-button ng-disabled="!messageToSend && !spamWarning" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
                              </center>
                         </md-input-container>
                     </form>

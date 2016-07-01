@@ -86,7 +86,7 @@ app.post('/login',
 });
 
 app.post('/register', function(req, res) {
-    if(!req.body.username || !req.body.password || !req.body.utcoffset) {
+    if(!req.body.username || !req.body.password || !req.body.utcoffset || !req.body.socketid) {
         res.status(400).send("Badly formatted request.");
     } else {
         console.log("PASS: ", req.body.password);
@@ -226,6 +226,8 @@ io.on('connection', function(socket) {
     socket.lastChatTimestamp = parseInt(new Date() / 1000);
     socket.timesSpammedWhileBanned = 0;
 
+    console.log("SOCKET INFO: ", socket.id);
+
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
 
@@ -327,7 +329,7 @@ function monitorSpam(socket) {
         if((currentTimestamp - socket.lastChatTimestamp) < 6) {
             //they've sent 3 messages in 5 seconds. BANNED
             socket.bannedFromChatUntil = currentTimestamp + 10;
-            banUserFromChat(/*id or name*/);
+            banUserFromChat(socket.id);
         } else {
             //three messages in more than 2 seconds.
             socket.messagesThisInterval = 0;
@@ -348,8 +350,8 @@ function isSocketBanned(socket) {
     }
 }
 
-function banUserFromChat() {
-    
+function banUserFromChat(socketid) {
+    console.log("WILL NOW BAN: ", socketid);
 }
 
 

@@ -101,10 +101,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     });
 
     socket.on('spamWarning', function() {
+        console.log("ALL WE KNOW OF SOCKET: ", socket.id);
         $mdSidenav('right').close();
-        $scope.$apply(function() {
-            $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed."; 
-        });       
+        $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed."; 
     });
 
     initialization();
@@ -137,7 +136,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     $scope.sendMessage = function() {
         if($scope.messageToSend) {
-            console.log("DONT FORGET TO CHANGED MESSAGES INTERVAL ON CLIENT!");
             var chatMsgObj = {};
             chatMsgObj.requestor = $scope.user.Username;
             chatMsgObj.message = $scope.messageToSend;
@@ -194,7 +192,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     }
 
     $scope.login = function(client) {
-        $http.post('/login', {"username":client.username, "password":client.password}).then(function(response) {
+        $http.post('/login', {"username":client.username, "password":client.password, "socketid":socket.id}).then(function(response) {
             console.log("logged in.");
             console.log(response);
             $scope.user = response.data;
@@ -210,7 +208,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     $scope.register = function(newUser) {
         console.log("clicked register.");
-        $http.post('/register', {"username":newUser.username, "password":newUser.password, "utcoffset":new Date().getTimezoneOffset()}).then(function(response) {
+        $http.post('/register', {"username":newUser.username, "password":newUser.password, "utcoffset":new Date().getTimezoneOffset(), "socketid":socket.id}).then(function(response) {
             console.log("logged in.");
             console.log(response);
             $scope.user = response.data;

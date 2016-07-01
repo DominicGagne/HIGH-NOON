@@ -5,7 +5,14 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
     self.initializeAuthentication = function() {
 
 		passport.use(new LocalStrategy(
-		    function(username, password, done) {
+			{passReqToCallback: true},
+		    function(req, username, password, done) {
+		    	console.log("REQUEST BODY: ", req.body);
+		    	if(! req.body.socketid) {
+    		        //badly formatted request, cannot link this authenticated user to a socket.
+    		        //do not authenticate.
+    		        return done(null, false);
+		    	}
 		    	console.log("\n\nsearching for user...\n\n");
 		    	console.log("Have user: ", username, " and pass: ", password);
 		        database.fetchFirst("SELECT * FROM User WHERE Username = ?", [username], function (userRecord) {
@@ -18,6 +25,9 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
 		            	return done(null, false); 
 		            }
 		            console.log("Sucessfully authenticated!");
+
+		        //attach socket to identify this user.
+		    	userRecord.socketid = req.body.socketid;
 		        return done(null, userRecord);
 		    });
 		  }
