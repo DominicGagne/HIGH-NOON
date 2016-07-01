@@ -65,7 +65,7 @@
                     <div ng-show="! user && ! showLogout && ! spamWarning">
                     <br><br><br><br><br><br>
                     <center><h3>{{loginPrompt}}</h3></center>
-                    <md-content>
+                    <md-content class="md-padding">
                         <md-tabs md-dynamic-height md-border-bottom>
                             <md-tab label="Login">
                                 <md-content class="md-padding">
@@ -142,13 +142,20 @@
                   </div>
 
                     <form autocomplete="off" ng-submit="sendMessage()">
-                        <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                             <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
-                             <br>
-                             <center>
-                             <md-button ng-disabled="!messageToSend && !spamWarning" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
-                             </center>
-                        </md-input-container>
+                        <div ng-show="user">
+                            <md-input-container form ng-submit="sendMessage()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                <input ng-maxlength="50" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Message'" placeholder="Message" ng-model="messageToSend">
+                                <br>
+                                <center>
+                                    <md-button ng-disabled="!messageToSend && !spamWarning" ng-click="sendMessage()" class="md-raised md-primary">Send</md-button>
+                                </center>
+                            </md-input-container>
+                        </div>
+                        <div ng-show="! user">
+                            <center>
+                                <h3>Login to chat!</h3>
+                            </center>
+                        </div>
                     </form>
                  </div>
                  <div ng-show="chatPrompt">
@@ -167,8 +174,11 @@
                 <md-content layout-padding>
                     <center>
                         <h2>Settings</h2><br>
-                        <md-switch ng-init="user.SoundEffects" ng-change="toggleSounds(user.SoundEffects)" ng-model="user.SoundEffects" aria-label="Switch 1">
+                        <md-switch ng-init="user.SoundEffects" ng-change="toggleIndividualSetting(user.SoundEffects, 'toggleSounds')" ng-model="user.SoundEffects" aria-label="Switch 1">
                             <h4>Obnoxious sound effects</h4>                  
+                        </md-switch>
+                        <md-switch ng-init="user.SoundEffects" ng-change="toggleIndividualSetting(user.ToastEffects, 'toggleToast')" ng-model="user.ToastEffects" aria-label="Switch 1">
+                            <h4>Chat Notifications</h4>                  
                         </md-switch>
                     </center>
 

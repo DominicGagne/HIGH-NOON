@@ -105,20 +105,30 @@ app.post('/register', function(req, res) {
         res.status(400).send("Badly formatted request.");
     } else {
         console.log("PASS: ", req.body.password);
-        database.insertOrUpdate("INSERT INTO USER (Username, Password, UTCOffset) VALUES (?, ?, ?)", [req.body.username, passwordHash.generate(req.body.password), req.body.utcoffset], function(err, insertID) {
+        database.insertOrUpdate("INSERT INTO User (Username, Password) VALUES (?, ?)", [req.body.username, passwordHash.generate(req.body.password)], function(err, insertID) {
             if(err) {
                 console.log("error inserting new user.");
                 res.status(503).send();
             } else {
-                console.log("sucess inserting new user. ID: ", insertID);
-
-                //TODO not sure how clean this is...definitely not scalable. What if we have more init variables in the future? Need to look this up.
-                req.login({"UserID":insertID, "Username":req.body.username, "NumWins":0, "TotalPoints":0, "SoundEffects":1, "socketid":req.body.socketid}, function(err) {
+                console.log("sucess inserting new user.ID: ", insertID);
+                database.insertOrUpdate("INSERT INTO Settings (UserID, UTCOffset) VALUES (?, ?)", [insertID, req.body.utcoffset], function(err, insertID) {
+                    //jesus these callbacks...
                     if(err) {
-                        console.log("ERROR with login after register.");
+                        console.log("error inserting into settings  table for userid: ", insertID);
                         throw err;
                     } else {
-                        res.send(sanitizeUserForClient(req.user));
+                        console.log("inserted into settings table successfully.");
+                        //MODULARIZE THESE GODDAMNED CALLBACKS!
+                        database.fetchFirst("SELECT * FROM User INNER JOIN Settings ON Settings.UserID = User.UserID WHERE User.Username = ?", [req.body.username], function (userRecord) {
+                            req.login(userRecord, function(err) {
+                                if(err) {
+                                    console.log("ERROR with login after register.");
+                                    throw err;
+                                } else {
+                                    res.send(sanitizeUserForClient(req.user));
+                                }
+                            });
+                        });
                     }
                 });
             }
@@ -187,18 +197,27 @@ app.get('/init', function(req, res) {
     res.status(200).send(payload);
 });
 
-app.put('/toggleSounds', authenticationStrategies.ensureAuthenticated, function(req, res) {
+
+//for toggles, lets write an app.route collection of endpoints.
+//eg, /toggleSetting/:settingID
+//this would also make things easier with a setting table in the db.
+//
+//OR have a single request that updates everything in the settings table when you update one single setting? 
+//I like that...
+//
+//one for toggle, one for more complex operations like chaning username.
+app.put('/updateToggleSettings', authenticationStrategies.ensureAuthenticated, function(req, res) {
     console.log("USER(I think): ", req.user.UserID);
-    if(! req.body.toggleSounds) {
+    if(! req.body.toggleSetting) {
         res.status(400).send("Badly formatted request.");
     } else {
-        console.log("USER WANTS TO: ", req.body.toggleSounds);
-        database.insertOrUpdate("UPDATE User SET SoundEffects = ? WHERE UserID = ?", [parseInt(req.body.toggleSounds), req.user.UserID], function(err, insertID) {
+        console.log("USER WANTS TO: ", req.body.toggleSetting);
+        database.insertOrUpdate("UPDATE Settings SET SoundEffects = ? WHERE UserID = ?", [parseInt(req.body.toggleSetting), req.user.UserID], function(err, insertID) {
             if(err) {
                 console.log("Error!");
                 throw err;
             } else {
-                console.log("success.");
+                console.log("success updating toggle sounds.");
             }
         });
         res.send("0");
@@ -354,9 +373,12 @@ function checkRecords() {
 //however, we also don't want to modify the session object for the user.
 //so I'll copy the important info over and leave the session object untounched.
 function sanitizeUserForClient(passportUserObject) {
+    //Should really consider renaming these attributes for the client side object.
+    //After all, they are now just names of tables in the database. Not a good thing.
     var sanitized = {};
     sanitized.Username = passportUserObject.Username;
     sanitized.SoundEffects = passportUserObject.SoundEffects;
+    sanitized.ChatToast = passportUserObject.ChatToast;
     sanitized.NumWins = passportUserObject.NumWins;
     sanitized.TotalPoints = passportUserObject.TotalPoints;
 

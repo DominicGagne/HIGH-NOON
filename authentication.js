@@ -15,7 +15,7 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
 		    	}
 		    	console.log("\n\nsearching for user...\n\n");
 		    	console.log("Have user: ", username, " and pass: ", password);
-		        database.fetchFirst("SELECT * FROM User WHERE Username = ?", [username], function (userRecord) {
+		        database.fetchFirst("SELECT * FROM User INNER JOIN Settings ON Settings.UserID = User.UserID WHERE User.Username = ?", [username], function (userRecord) {
 		            if (!userRecord) { 
 		            	console.log("No user found!");
 		            	return done(null, false); 
