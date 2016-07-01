@@ -1,4 +1,4 @@
-var authenticationModule  = function(app, passport, LocalStrategy, database) {
+var authenticationModule  = function(app, passport, LocalStrategy, database, passwordHash) {
     
     var self = this;
 
@@ -55,12 +55,7 @@ var authenticationModule  = function(app, passport, LocalStrategy, database) {
 
 
     function validatePassword(userRecord, password) {
-    	if(userRecord.Password == password) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    	console.log("user record: ", userRecord);
+    	return passwordHash.verify(password, userRecord.Password);
     }
 
 };

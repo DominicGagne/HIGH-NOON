@@ -60,7 +60,7 @@
                     </div>
                     <div ng-show="! user && ! showLogout">
                     <br><br><br><br><br><br>
-                    <center><h3>Login or Register to chat with other users!</h3></center>
+                    <center><h3>{{loginPrompt}}</h3></center>
                     <md-content>
                         <md-tabs md-dynamic-height md-border-bottom>
                             <md-tab label="Login">
@@ -92,7 +92,7 @@
                                             <input type="password" ng-maxlength="20" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Confirm Password'" placeholder="Confirm Password" ng-model="newUser.confirmPassword">
                                             <br>
                                             <center>
-                                                <md-button ng-disabled="!newUser.username || !newUser.password || !newUser.confirmPassword || newUser.password != newUser.confirmPassword" input type="submit" ng-click="login(newUser)" class="md-raised md-primary">Register</md-button>
+                                                <md-button ng-disabled="!newUser.username || !newUser.password || !newUser.confirmPassword || newUser.password != newUser.confirmPassword" input type="submit" ng-click="register(newUser)" class="md-raised md-primary">Register</md-button>
                                             </center>
                                         </md-input-container>
                                     </form>

@@ -10,6 +10,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.user = null;
     $scope.client = null;
 
+    $scope.loginPrompt = 'Login or Register to chat with other users!';
     $scope.chatPrompt = null;
 
     //this should be server side...
@@ -235,7 +236,25 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
             console.log("user:", $scope.user);
         }, function(response) {
+            $scope.loginPrompt = 'Incorrect Username or password.';
+            $scope.client.password = '';
             console.log("error from server.");
+            console.log(response);
+        });
+    };
+
+    $scope.register = function(newUser) {
+        console.log("clicked register.");
+        $http.post('/register', {"username":newUser.username, "password":newUser.password, "utcoffset":new Date().getTimezoneOffset()}).then(function(response) {
+            console.log("logged in.");
+            console.log(response);
+            $scope.user = response.data;
+            $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
+            console.log("user:", $scope.user);
+        }, function(response) {
+            console.log("error from server.");
+            $scope.loginPrompt = 'Sorry, but that username has already been used.';
+            $scope.newUser = {};
             console.log(response);
         });
     };

@@ -9,6 +9,7 @@ var mysql = require('mysql');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
+var passwordHash = require('password-hash');
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -23,7 +24,7 @@ var database = new databaseModule(mysql);
 database.acquireConnection();
 
 var authenticationModule = require('./authentication.js');
-var authenticationStrategies = new authenticationModule(app, passport, LocalStrategy, database);
+var authenticationStrategies = new authenticationModule(app, passport, LocalStrategy, database, passwordHash);
 authenticationStrategies.initializeAuthentication();
 
 
@@ -77,15 +78,30 @@ console.log("All time high: " + allTimeHigh);
 var point;
 
 app.post('/login',
-  passport.authenticate('local'),
-  function(req, res) {
+    passport.authenticate('local'),
+    function(req, res) {
     // If this function gets called, authentication was successful.
-    // `req.user` contains the authenticated user.
     console.log("authenticated!");
     console.log("body: " , req.body);
     res.send(sanitizeUserForClient(req.user));
-    //res.redirect('/users/' + req.user.username);
-  });
+});
+
+app.post('/register', function(req, res) {
+    if(!req.body.username || !req.body.password || !req.body.utcoffset) {
+        res.status(400).send("Badly formatted request.");
+    } else {
+        console.log("PASS: ", req.body.password);
+        database.insertOrUpdate("INSERT INTO USER (Username, Password, UTCOffset) VALUES (?, ?, ?)", [req.body.username, passwordHash.generate(req.body.password), req.body.utcoffset], function(err, insertID) {
+            if(err) {
+                console.log("error inserting new user.");
+                res.status(503).send();
+            } else {
+                console.log("sucess inserting new user. ID: ", insertID);
+                res.send({"Username":req.body.username, "TotalWins":0, "NumWins":0, "TotalPoints":0, "SoundEffects":1});
+            }
+        });
+    }
+});
 
 app.get('/test', authenticationStrategies.ensureAuthenticated, function(req, res) {
     console.log("Good auth.");
@@ -277,7 +293,7 @@ function sanitizeUserForClient(passportUserObject) {
     sanitized.Username = passportUserObject.Username;
     sanitized.SoundEffects = passportUserObject.SoundEffects;
     sanitized.NumWins = passportUserObject.NumWins;
-    sanitized.TotalWins = passportUserObject.TotalPoints;
+    sanitized.TotalPoints = passportUserObject.TotalPoints;
 
     return sanitized;
 }
