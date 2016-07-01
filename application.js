@@ -208,11 +208,11 @@ app.get('/init', function(req, res) {
 //one for toggle, one for more complex operations like chaning username.
 app.put('/updateToggleSettings', authenticationStrategies.ensureAuthenticated, function(req, res) {
     console.log("USER(I think): ", req.user.UserID);
-    if(! req.body.toggleSetting) {
+    if(! req.body.userSettings) {
         res.status(400).send("Badly formatted request.");
     } else {
-        console.log("USER WANTS TO: ", req.body.toggleSetting);
-        database.insertOrUpdate("UPDATE Settings SET SoundEffects = ? WHERE UserID = ?", [parseInt(req.body.toggleSetting), req.user.UserID], function(err, insertID) {
+        console.log("USER WANTS TO: ", req.body.userSettings);
+        database.insertOrUpdate("UPDATE Settings SET SoundEffects = ?, ToastEffects = ? WHERE UserID = ?", [parseInt(req.body.userSettings.SoundEffects), parseInt(req.body.userSettings.ChatToast), req.user.UserID], function(err, insertID) {
             if(err) {
                 console.log("Error!");
                 throw err;
@@ -376,11 +376,16 @@ function sanitizeUserForClient(passportUserObject) {
     //Should really consider renaming these attributes for the client side object.
     //After all, they are now just names of tables in the database. Not a good thing.
     var sanitized = {};
+    sanitized.settings = {};
+    sanitized.scoreTracker = {};
+
     sanitized.Username = passportUserObject.Username;
-    sanitized.SoundEffects = passportUserObject.SoundEffects;
-    sanitized.ChatToast = passportUserObject.ChatToast;
-    sanitized.NumWins = passportUserObject.NumWins;
-    sanitized.TotalPoints = passportUserObject.TotalPoints;
+
+    sanitized.settings.SoundEffects = passportUserObject.SoundEffects;
+    sanitized.settings.ChatToast = passportUserObject.ToastEffects;
+
+    sanitized.scoreTracker.NumWins = passportUserObject.NumWins;
+    sanitized.scoreTracker.TotalPoints = passportUserObject.TotalPoints;
 
     return sanitized;
 }

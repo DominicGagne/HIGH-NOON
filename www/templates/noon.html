@@ -174,10 +174,10 @@
                 <md-content layout-padding>
                     <center>
                         <h2>Settings</h2><br>
-                        <md-switch ng-init="user.SoundEffects" ng-change="toggleIndividualSetting(user.SoundEffects, 'toggleSounds')" ng-model="user.SoundEffects" aria-label="Switch 1">
+                        <md-switch ng-init="user.settings.SoundEffects" ng-change="updateToggleSettings()" ng-model="user.settings.SoundEffects" aria-label="Switch 1">
                             <h4>Obnoxious sound effects</h4>                  
                         </md-switch>
-                        <md-switch ng-init="user.SoundEffects" ng-change="toggleIndividualSetting(user.ToastEffects, 'toggleToast')" ng-model="user.ToastEffects" aria-label="Switch 1">
+                        <md-switch ng-init="user.settings.ChatToast" ng-change="updateToggleSettings()" ng-model="user.settings.ChatToast" aria-label="Switch 2">
                             <h4>Chat Notifications</h4>                  
                         </md-switch>
                     </center>

@@ -183,9 +183,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $mdSidenav('left').open();
     };
 
-    $scope.toggleIndividualSetting = function(settingName, endpoint) {
-        console.log("toggle sounds to: " , settingName, endpoint);
-        $http.put('/updateToggleSettings', {"toggleSetting":formatToggleSettings($scope.user.Settings)}).then(function(response) {
+    $scope.updateToggleSettings = function() {
+        $http.put('/updateToggleSettings', {"userSettings":formatToggleSettings($scope.user.settings)}).then(function(response) {
             console.log("success from toggle sounds.");
         }, function(response) {
             console.log("error from server.");
@@ -193,10 +192,27 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         });
     };
 
-    function formatBinaryToggle(soundEffects) {
-        if(soundEffects) {
+
+    function formatToggleSettings(userSettings) {
+        var formattedUserSettings = {};
+        for(var attribute in userSettings) {
+            if(userSettings.hasOwnProperty(attribute)) {
+                console.log("the value of :" , attribute, " is: ", userSettings[attribute]);
+                formattedUserSettings[attribute] = formatBinaryToggle(userSettings[attribute]);
+                console.log("the value of :" , attribute, " is now: ", userSettings[attribute]);
+            }
+        }
+        console.log("userSettings: ", userSettings);
+        return formattedUserSettings;
+    }
+
+    function formatBinaryToggle(boolSetting) {
+        console.log("boolSetting: ", boolSetting);
+        if(boolSetting) {
+            console.log("TURNING ONE!");
             return "1";
         } else {
+            console.log("TURNING ZERO!");
             return "0";
         }
     }
@@ -221,8 +237,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
                 $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed.";
             } else {
                 $scope.user = response.data;
-                $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
-                $scope.user.ChatToast = unformatBinaryToggle($scope.user.ChatToast);
+                console.log("response: ", response.data);
+                $scope.user.settings.SoundEffects = unformatBinaryToggle($scope.user.settings.SoundEffects);
+                $scope.user.settings.ChatToast = unformatBinaryToggle($scope.user.settings.ChatToast);
                 console.log("user:", $scope.user);
             }
 
