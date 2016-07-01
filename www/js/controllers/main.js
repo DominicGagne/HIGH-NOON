@@ -176,7 +176,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             chatMsgObj.message = $scope.messageToSend;
             console.log("SENDING: " + chatMsgObj.message);
             $scope.messageToSend = '';
-            gunshot.play();
+            if($scope.user.SoundEffects) {
+                gunshot.play();
+            }
             socket.emit('message', chatMsgObj);
         }
     };
@@ -185,7 +187,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.openChat = function() {
         $mdSidenav('right').open();
         $mdToast.hide();
-        familiar.play();
+        if($scope.user.SoundEffects) {
+            familiar.play();
+        }
         var objDiv = document.getElementById("chat");
         objDiv.scrollTop = objDiv.scrollHeight;
         resetChatInterval();
@@ -280,13 +284,16 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         if($scope.targetsHit > 4) {
             socket.emit('AllTargetsHit');
         }
-        
-        if(!gunshot.paused) {
-            gunshotTwo.play();
-        } else {
-           gunshot.play();
-        }
+
         drawTarget();
+
+        if($scope.user.SoundEffects) {
+            if(!gunshot.paused) {
+                gunshotTwo.play();
+            } else {
+               gunshot.play();
+            }
+        }
     };
 
     //save this for when they type explicit things. might want to be done client side?
