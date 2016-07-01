@@ -34,7 +34,6 @@ var currentMicrosecond = new Date();
 var totalVisitors = 0;
 var numUsers = 0;
 var allTimeHigh = 0;
-var activeSockets = [];
 
 //stop passing all this stuff around globally...make modules...please...
 var bannedIPs = [];
@@ -223,10 +222,9 @@ io.on('connection', function(socket) {
     numUsers++;
     checkRecords();
 
-    socket.mycustom = 'hi!';
-    console.log("WOW: ",socket.mycustom);
-
-    addToActiveSockets(socket.id);
+    socket.messagesThisInterval = 0;
+    socket.lastChatTimestamp = parseInt(new Date() / 1000);
+    socket.timesSpammedWhileBanned = 0;
 
     io.emit('updateNumGlobalUsers', numUsers);
     console.log("Cowboy connected. Total: " + numUsers);
@@ -257,7 +255,6 @@ io.on('connection', function(socket) {
         //console.log("DISCONNECT: ", socket);
         numUsers--;
         io.emit('updateNumGlobalUsers', numUsers); 
-        removeFromActiveSockets(socket.id);
         console.log("Cowboy disconnected. Total: " + numUsers);
     });
 
@@ -275,10 +272,16 @@ io.on('connection', function(socket) {
 
 
     socket.on('message', function(msg) {
-    console.log("AND: ",socket.mycustom);
 
-        //incrementMessageCount(socket.id);
-        io.emit('message', msg);
+        monitorSpam(socket);
+
+        if(! isSocketBanned(socket)) {
+            io.emit('message', msg);
+        } else {
+            socket.timesSpammedWhileBanned++;
+            socket.emit('spamWarning');
+        }
+
     });
 });
 
@@ -307,33 +310,46 @@ function sanitizeUserForClient(passportUserObject) {
     return sanitized;
 }
 
-function addToActiveSockets(socketID) {
-    var newUser = {};
-    newUser.socketID = socketID;
-    newUser.messagesThisInterval = 0;
-    activeSockets.push(newUser);
-    console.log("active users: " + JSON.stringify(activeSockets));
-}
-
-function removeFromActiveSockets(socketID) {
-    console.log("Removing: ", socketID, " at: ", activeSockets.indexOf(socketID));
-    activeSockets.splice(activeSockets.indexOf(socketID), 1);
-    //console.log("\n\nactive users: " + JSON.stringify(activeSockets));
-}
-
-function incrementMessageCount(socketID) {
-    console.log("DATA: ", activeSockets.indexOf(socketID) );
-    activeSockets[activeSockets.indexOf(socketID)].messagesThisInterval++;
-}
 
 //this function is dedicated to Corey
-function monitorSpam() {
-    var numSockets = activeSockets.length;
+function monitorSpam(socket) {
+    socket.messagesThisInterval++;
+    console.log("messagesThisInterval: ", socket.messagesThisInterval);
 
-    for(var i = 0; i < numSockets; i++) {
-        console.log("socket: ", activeSockets[i]);
+    console.log("timesSpammedWhileBanned: ", socket.timesSpammedWhileBanned);
+
+    var currentTimestamp = parseInt(currentMicrosecond / 1000);
+
+    //check every three messages to see if they are spamming.
+    if(socket.messagesThisInterval > 2) {
+        console.log("More than three messages, checking for spam.");
+        console.log("MATH: ", (currentTimestamp - socket.lastChatTimestamp));
+        if((currentTimestamp - socket.lastChatTimestamp) < 6) {
+            //they've sent 3 messages in 5 seconds. BANNED
+            socket.bannedFromChatUntil = currentTimestamp + 10;
+            banUserFromChat(/*id or name*/);
+        } else {
+            //three messages in more than 2 seconds.
+            socket.messagesThisInterval = 0;
+            socket.lastChatTimestamp = currentTimestamp;
+        }
     }
-    console.log("\n\n\n");
+}
+
+function isSocketBanned(socket) {
+    var currentTimestamp = parseInt(currentMicrosecond / 1000);
+
+    if(currentTimestamp < socket.bannedFromChatUntil) {
+        console.log("user is still banned!");
+        return true;
+    } else {
+        console.log("user is not banned.");
+        return false;
+    }
+}
+
+function banUserFromChat() {
+    
 }
 
 
@@ -342,7 +358,6 @@ function monitorSpam() {
 setInterval(function () {
     currentMicrosecond = new Date();
     timeZoneModule.globalTimestampEmit(parseInt(currentMicrosecond / 1000));
-    //monitorSpam();
 
     //setting an interval will put that function into Node's queue at the offset amount of milliseconds.
     //I'm picking something slightly less than one second because Node almost always has something in the queue

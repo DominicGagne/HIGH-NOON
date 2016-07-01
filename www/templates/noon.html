@@ -39,10 +39,14 @@
                
                 
                 <div flex="20">
-                    <div ng-show="user && ! showLogout">
+                    <div ng-show="spamWarning">
+                        <br><br><br><br><br><br>
+                        <h2>{{spamWarning}}</h2>
+                    </div>
+                    <div ng-show="user && ! showLogout && ! spamWarning">
                         <center>
                         <br><br><br><br><br><br>
-                            <h2>Hello, {{user.Username}}.</h2>
+                                <h2>Hello, {{user.Username}}.</h2>                   
                                 <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
 
                                 <md-button aria-label="Logout" class="md-raised" ng-click="viewSettings()">        

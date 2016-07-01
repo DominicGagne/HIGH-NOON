@@ -16,7 +16,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     //this should be server side...
     $scope.targetsHit = 0;
 
-    var messagesSentThisInterval = 0;
     var warningsAboutSpam = 0;
 
     var noonAudio = new Audio('Assets/highNoon.mp3');
@@ -101,6 +100,13 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         });
     });
 
+    socket.on('spamWarning', function() {
+        $mdSidenav('right').close();
+        $scope.$apply(function() {
+            $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed."; 
+        });       
+    });
+
     initialization();
     function initialization() {
         $http.get('/init').then(initSuccess, initFailure);
@@ -119,59 +125,19 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
 
 
-    function monitorSpam() {
-        console.log("Monitoring spam...");
-        if(messagesSentThisInterval > 2) {
-            console.log("TOO MANY!");
-            warningsAboutSpam++;
-            checkWarningsAboutSpam();
-
-            $scope.chatPrompt = 'Easy there, tiger. Too many messages.';
-            messagesSentThisInterval = 0;
-
-            //they literally get a timeout if they send too many messages.
-            setTimeout(function(){cooldownForSpammers();}, 15000);
-        } 
-    }
-
-    function resetChatInterval() {
-        console.log("RESETTING CHAT INTERVAL");
-        messagesSentThisInterval = 0;
-        console.log("IS OPEN: " + $mdSidenav('right').isOpen());
-        if($mdSidenav('right').isOpen()) {
-            setTimeout(function() {
-                resetChatInterval();
-            }, 3000);
-        }
-    }
-
-    function checkWarningsAboutSpam() {
-        if(warningsAboutSpam > 2) {
-            //three strikes, you're out!
-            whosATurkey.play();
-            setTimeout(function(){redirectSpammer();},2100);
-        }
-    }
 
     function redirectSpammer() {
         socket.emit('banHammer');
         window.location = 'https://youtu.be/I-OW4SAZgXY?t=17s';
     }
 
-    //this function is dedicated to Chris
-    //it is called after the spammer gets a 15 seconds timeout to reset their chatPrompt
-    function cooldownForSpammers() {
-        $scope.chatPrompt = null;
-
-    }
 
 
 
 
     $scope.sendMessage = function() {
         if($scope.messageToSend) {
-            messagesSentThisInterval++;
-            monitorSpam();
+            console.log("DONT FORGET TO CHANGED MESSAGES INTERVAL ON CLIENT!");
             var chatMsgObj = {};
             chatMsgObj.requestor = $scope.user.Username;
             chatMsgObj.message = $scope.messageToSend;
@@ -193,7 +159,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         }
         var objDiv = document.getElementById("chat");
         objDiv.scrollTop = objDiv.scrollHeight;
-        resetChatInterval();
     };
 
     $scope.viewSettings = function() {
