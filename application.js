@@ -26,6 +26,10 @@ var authenticationModule = require('./authentication.js');
 var authenticationStrategies = new authenticationModule(app, passport, LocalStrategy, database);
 authenticationStrategies.initializeAuthentication();
 
+
+//used to track time for both heartbeat pusle in timeZoneModule but also chat spam.
+var currentMicrosecond = new Date();
+
 var totalVisitors = 0;
 var numUsers = 0;
 var allTimeHigh = 0;
@@ -79,7 +83,8 @@ app.post('/login',
     // `req.user` contains the authenticated user.
     console.log("authenticated!");
     console.log("body: " , req.body);
-    res.send("Success!");
+    delete req.user.UserID;
+    res.send(req.user);
     //res.redirect('/users/' + req.user.username);
   });
 
@@ -273,9 +278,15 @@ function monitorSpam() {
 
 //hearbeat tick of the entire application
 setInterval(function () {
-    timeZoneModule.globalTimestampEmit(parseInt(new Date() / 1000));
+    currentMicrosecond = new Date();
+    timeZoneModule.globalTimestampEmit(parseInt(currentMicrosecond / 1000));
     //monitorSpam();
-}, 1000);
+
+    //setting an interval will put that function into Node's queue at the offset amount of milliseconds.
+    //I'm picking something slightly less than one second because Node almost always has something in the queue
+    //to process before getting to this function. From observation I've noticed this delay to be around 8 milliseconds.
+    //This is why it is vital we take a new timestamp with new Date() each iteration. 
+}, 992);
 
 
 //project is ready, listen on port 3000.

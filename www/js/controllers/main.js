@@ -8,6 +8,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.timeTilNoon = 'LOADING...';
     $scope.overwatch = 'Assets/overwatchBack.jpg';
 
+    $scope.user = null;
+    $scope.client = null;
+
     $scope.chatPrompt = null;
 
     //this should be server side...
@@ -189,9 +192,11 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         resetChatInterval();
     };
 
-    $scope.login = function(user) {
-        $http.post('/login', {"username":user.username, "password":user.password}).then(function(response) {
+    $scope.login = function(client) {
+        $http.post('/login', {"username":client.username, "password":client.password}).then(function(response) {
             console.log("logged in.");
+            console.log(response);
+            $scope.user = response.data;
         }, function(response) {
             console.log("error from server.");
             console.log(response);

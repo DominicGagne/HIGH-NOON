@@ -1,7 +1,7 @@
 <html>
 <ng-app="Boilerplate">
     
-    <body>
+    <body ng-init="client=null">
         <div primary ng-show="!targetTime">
             <div layout="row" layout-fill>
                 <div flex="15" flex-offset="5">
@@ -18,15 +18,9 @@
                             </span>
                         </h2>
 
-                         <form novalidate class="simple-form">
-                            Name: <input type="text" ng-model="user.username" /><br />
-                            E-mail: <input type="password" ng-model="user.password" /><br />
-                            <input type="submit" ng-click="login(user)" value="Login" />
-                          </form>
-                          <pre>{{user}}</pre>
                     </center>
                 </div>
-                <div flex="60">
+                <div flex="50" flex-offset="5">
                     <center>
                         <h2><i ng-show="!displayMcCree" >It's High Noon, McCree.</i></h2>
                         <i><h1 ng-show="!displayMcCree" >{{timeTilNoon}}</h1></i>
@@ -43,20 +37,70 @@
                     </center>
                 </div>
                
-                <div flex="15" layout="column" layout-align="start start" layout-fill>
-                    <div flex="20" flex-offset="30">
+                
+                <div flex="20">
+                    <div ng-show="user">
                         <center>
                         <br><br><br><br><br><br>
+                            <h2>Hello, {{user.Username}}.</h2>
                                 <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
 
                                 <md-button aria-label="Logout" class="md-raised" ng-click="test()">        
-                                  TEST
+                                  Settings
+                                </md-button>
+
+                                <md-button aria-label="Logout" class="md-raised" ng-click="logout()">     
+                                  Stats
                                 </md-button>
 
                                 <md-button aria-label="Logout" class="md-raised" ng-click="logout()">     
                                   Logout
                                 </md-button>
                         </center>
+                    </div>
+                    <div ng-show="! user">
+                    <br><br><br><br><br><br>
+                    <center><h3>Login or Register to chat with other users!</h3></center>
+                    <md-content>
+                        <md-tabs md-dynamic-height md-border-bottom>
+                            <md-tab label="Login">
+                                <md-content class="md-padding">
+                                    <form>
+                                        <md-input-container style="width:100%; margin:auto;" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                             <input ng-maxlength="15" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="client.username">
+                                        </md-input-container>
+                                        <md-input-container style="width:100%; margin:auto;" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                            <input type="password" ng-maxlength="20" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Password'" placeholder="Password" ng-model="client.password">
+                                            <br>
+                                            <center>
+                                                <md-button ng-disabled="!client.username || !client.password" input type="submit" ng-click="login(client)" class="md-raised md-primary">Login</md-button>
+                                            </center>
+                                        </md-input-container>
+                                    </form>
+                                </md-content>
+                            </md-tab>
+                                <md-tab label="Register">
+                                <md-content class="md-padding">
+                                    <form>
+                                        <md-input-container style="width:100%; margin:auto;" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                             <input ng-maxlength="15" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="newUser.username">
+                                        </md-input-container>
+                                        <md-input-container style="width:100%; margin:auto;" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                            <input type="password" ng-maxlength="20" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Password'" placeholder="Password" ng-model="newUser.password">
+                                        </md-input-container>
+                                        <md-input-container style="width:100%; margin:auto;" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
+                                            <input type="password" ng-maxlength="20" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Confirm Password'" placeholder="Confirm Password" ng-model="newUser.confirmPassword">
+                                            <br>
+                                            <center>
+                                                <md-button ng-disabled="!newUser.username || !newUser.password || !newUser.confirmPassword || newUser.password != newUser.confirmPassword" input type="submit" ng-click="login(newUser)" class="md-raised md-primary">Register</md-button>
+                                            </center>
+                                        </md-input-container>
+                                    </form>
+                                </md-content>
+                            </md-tab>
+                        </md-tabs>
+                    </md-content>
+                    
                     </div>
                 </div>
             </div>
