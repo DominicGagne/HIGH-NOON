@@ -121,6 +121,13 @@ app.get('/requestChatName/:name', function(req, res) {
     res.status(200).send(req.params.name);
 });
 
+app.get('/logout', function(req, res) {
+    req.session.destroy(function(err){
+        //wait for session to be destroyed and redirect user home.
+        res.status(200).send();
+    });
+});
+
 
 //put this in a module, PLEASE.
 //also, is there a more efficient way to do this?

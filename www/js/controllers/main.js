@@ -203,6 +203,23 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         });
     };
 
+    $scope.logout = function() {
+        $http.get('/logout').then(function(response) {
+            console.log("Logged out.");
+            console.log(response);
+            $scope.showLogout = true;
+            $scope.user = null;
+            $scope.client = null;
+        }, function(response) {
+            console.log("error from server.");
+            console.log(response);
+        });
+    };
+
+    $scope.continueAsAnon = function() {
+        $scope.showLogout = false;
+    };
+
     $scope.test = function() {
         $http.get('/test').then(function(response) {
                 console.log("passed.");

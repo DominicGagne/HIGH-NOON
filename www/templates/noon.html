@@ -8,7 +8,7 @@
                     <br><br><br><br><br><br>
                     <center>
                         <h2>
-                            {{timezone}}<br>
+                            Zone: {{timezone}}<br>
                             {{newRecord}}<br>
                             <span ng-show="totalVisitors">
                                 Total visitors: {{totalVisitors}}
@@ -39,7 +39,7 @@
                
                 
                 <div flex="20">
-                    <div ng-show="user">
+                    <div ng-show="user && ! showLogout">
                         <center>
                         <br><br><br><br><br><br>
                             <h2>Hello, {{user.Username}}.</h2>
@@ -58,7 +58,7 @@
                                 </md-button>
                         </center>
                     </div>
-                    <div ng-show="! user">
+                    <div ng-show="! user && ! showLogout">
                     <br><br><br><br><br><br>
                     <center><h3>Login or Register to chat with other users!</h3></center>
                     <md-content>
@@ -101,6 +101,15 @@
                         </md-tabs>
                     </md-content>
                     
+                    </div>
+                    <div ng-show="showLogout">
+                        <br><br><br><br><br><br>
+                        <center>
+                            <h2>Successfully logged out.</h2>
+                            <md-button aria-label="Cont" class="md-raised" ng-click="continueAsAnon()">     
+                                Okay
+                            </md-button>
+                        </center>
                     </div>
                 </div>
             </div>
