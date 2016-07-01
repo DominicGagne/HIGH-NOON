@@ -17,6 +17,8 @@ app.use(bodyParser.urlencoded({limit: "5mb", extended: true, parameterLimit:5000
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
 
+//temporary workaround.
+var bannedSockets = [];
 
 //load the database module, and allow for connections to be made.
 var databaseModule = require('./database.js');
@@ -82,8 +84,21 @@ app.post('/login',
     // If this function gets called, authentication was successful.
     console.log("authenticated!");
     console.log("body: " , req.body);
-    res.send(sanitizeUserForClient(req.user));
+    if(userIsBanned(req.user)) {
+        res.send({banned:"banned"});
+    } else {
+        res.send(sanitizeUserForClient(req.user));
+    }
 });
+
+function userIsBanned(user) {
+    if(parseInt(user.BannedUntil) > parseInt(currentMicrosecond / 1000)) {
+        //user still banned.
+        return true;
+    } else {
+        return false;
+    }
+}
 
 app.post('/register', function(req, res) {
     if(!req.body.username || !req.body.password || !req.body.utcoffset || !req.body.socketid) {
@@ -98,7 +113,7 @@ app.post('/register', function(req, res) {
                 console.log("sucess inserting new user. ID: ", insertID);
 
                 //TODO not sure how clean this is...definitely not scalable. What if we have more init variables in the future? Need to look this up.
-                req.login({"UserID":insertID, "Username":req.body.username, "NumWins":0, "TotalPoints":0, "SoundEffects":1}, function(err) {
+                req.login({"UserID":insertID, "Username":req.body.username, "NumWins":0, "TotalPoints":0, "SoundEffects":1, "socketid":req.body.socketid}, function(err) {
                     if(err) {
                         console.log("ERROR with login after register.");
                         throw err;
@@ -114,6 +129,40 @@ app.post('/register', function(req, res) {
 app.get('/test', authenticationStrategies.ensureAuthenticated, function(req, res) {
     console.log("Good auth.");
 });
+
+//instead of a ban status, lets have the user make a request when they open the chat,
+//which will pass back a token that is required to chat. required during that hour? each
+//time someone logs in generate a token and store it until they request open chat.
+app.get('/banstatus', authenticationStrategies.ensureAuthenticated, function(req, res) {
+    console.log("Banning request: ", req);
+    banAccount(req);
+});
+
+//very temporary. replace with function requiring token to chat.
+function banAccount(req) {
+    var socketToBan = req.user.socketid;
+
+    for(var i = 0; i < bannedSockets.length; i++) {
+        console.log("observing...");
+        console.log("socket to ban: ",socketToBan, " at i: ", bannedSockets[i]);
+        if(socketToBan == bannedSockets[i]) {
+            //ban this user.
+            setPersistentUserBan(req.user.UserID);
+        }
+    }
+}
+
+function setPersistentUserBan(userID) {
+    var bannedUntil = (currentMicrosecond / 1000) + 86400;
+    database.insertOrUpdate("UPDATE User SET BannedUntil = ? WHERE UserID = ?", [bannedUntil.toString(), userID], function(err, insertID) {
+        if(err) {
+            console.log("Error updating persistent ban user!");
+        } else {
+            console.log("user persistently banned.");
+        }
+    });
+}
+
 
 app.get('/', function(req, res) {
   //res.sendFile(__dirname + '/www/index.html');
@@ -281,6 +330,8 @@ io.on('connection', function(socket) {
             io.emit('message', msg);
         } else {
             socket.timesSpammedWhileBanned++;
+            console.log("pushing to bannedSockets: ", socket.id.substring(2));
+            bannedSockets.push(socket.id.substring(2));
             socket.emit('spamWarning');
         }
 

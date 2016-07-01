@@ -102,6 +102,11 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
     socket.on('spamWarning', function() {
         console.log("ALL WE KNOW OF SOCKET: ", socket.id);
+        $http.get('/banstatus').then(function(response) {
+              //success
+        }, function(res){
+              //failure
+        });
         $mdSidenav('right').close();
         $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed."; 
     });
@@ -195,9 +200,16 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $http.post('/login', {"username":client.username, "password":client.password, "socketid":socket.id}).then(function(response) {
             console.log("logged in.");
             console.log(response);
-            $scope.user = response.data;
-            $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
-            console.log("user:", $scope.user);
+
+            //temprary workaround, use tokens brah
+            if(response.data.banned) {
+                $scope.spamWarning = "You've been temporarily banned from chat. Your messages will not be processed.";
+            } else {
+                $scope.user = response.data;
+                $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
+                console.log("user:", $scope.user);
+            }
+
         }, function(response) {
             $scope.loginPrompt = 'Incorrect Username or password.';
             $scope.client.password = '';
