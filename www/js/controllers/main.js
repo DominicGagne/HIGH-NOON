@@ -4,7 +4,6 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     console.log("Loaded Noon Controller.");
     $scope.messages = [];
     $scope.messageToSend = '';
-    $scope.potentialChatName = '';
     $scope.timeTilNoon = 'LOADING...';
     $scope.overwatch = 'Assets/overwatchBack.jpg';
 
@@ -173,7 +172,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             messagesSentThisInterval++;
             monitorSpam();
             var chatMsgObj = {};
-            chatMsgObj.requestor = $scope.chatName;
+            chatMsgObj.requestor = $scope.user.Username;
             chatMsgObj.message = $scope.messageToSend;
             console.log("SENDING: " + chatMsgObj.message);
             $scope.messageToSend = '';
@@ -192,11 +191,45 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         resetChatInterval();
     };
 
+    $scope.viewSettings = function() {
+        $mdSidenav('left').open();
+    };
+
+    $scope.toggleSounds = function(soundEffects) {
+        console.log("toggle sounds to: " , soundEffects);
+        $http.put('/toggleSounds', {"toggleSounds":formatBinaryToggle(soundEffects)}).then(function(response) {
+            console.log("success from toggle sounds.");
+        }, function(response) {
+            console.log("error from server.");
+            console.log(response);
+        });
+    };
+
+    function formatBinaryToggle(soundEffects) {
+        if(soundEffects) {
+            return "1";
+        } else {
+            return "0";
+        }
+    }
+
+    function unformatBinaryToggle(soundEffects) {
+        if(soundEffects) {
+            console.log("set to true!");
+            return true;
+        } else {
+            console.log("set to false!");
+            return false;
+        }
+    }
+
     $scope.login = function(client) {
         $http.post('/login', {"username":client.username, "password":client.password}).then(function(response) {
             console.log("logged in.");
             console.log(response);
             $scope.user = response.data;
+            $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
+            console.log("user:", $scope.user);
         }, function(response) {
             console.log("error from server.");
             console.log(response);
@@ -229,13 +262,16 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             });
     };
 
-        $scope.requestChatName = function() {
-        $http.get('/requestChatName/' + $scope.potentialChatName).then(joinChat, rejectedFromChat);
-    };
+
 
     $scope.closeChat = function() {
         console.log("Chat was closed");
         $mdSidenav('right').close();
+    };
+
+    $scope.closeSettings = function() {
+        console.log("closing settings.");
+        $mdSidenav('left').close();
     };
 
     $scope.targetHit = function() {
@@ -253,10 +289,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         drawTarget();
     };
 
-    function joinChat(response) {
-        $scope.chatName = response.data;
-        overTheLine.play();
-    }
+    //save this for when they type explicit things. might want to be done client side?
+    //lots of work for the server...
+    //overTheLine.play();
     
     function rejectedFromChat() {
         

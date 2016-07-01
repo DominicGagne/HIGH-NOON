@@ -45,7 +45,7 @@
                             <h2>Hello, {{user.Username}}.</h2>
                                 <md-button ng-click="openChat()" class="md-raised md-default">Open Chat</md-button>
 
-                                <md-button aria-label="Logout" class="md-raised" ng-click="test()">        
+                                <md-button aria-label="Logout" class="md-raised" ng-click="viewSettings()">        
                                   Settings
                                 </md-button>
 
@@ -117,9 +117,9 @@
 
             <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right" style="width: 80%;">
               <md-content layout-padding>
-                  <center><h3>Chat</h3></center>
+                  <center><h2>Chat</h2></center>
                   
-                  <div ng-show="chatName && !chatPrompt">
+                  <div ng-show="!chatPrompt">
                   
                   <div id="chat" style="height: 50vh; overflow: auto;">
                       <div style="position: relative; top: 7%;"ng-show="messages.length==0"><center><p>No messages.</p></center></div>
@@ -150,24 +150,38 @@
                  <div ng-show="chatPrompt">
                      <center><h3>{{chatPrompt}}</h3></center>
                  </div>
-                 <div ng-show="! chatName">
-                    <center><h3>Create a Username to get started!</h3></center>
-                    <form autocomplete="off" ng-submit="requestChatName()">
-                        <md-input-container style="width:50%; margin:auto;" form ng-submit="requestChatName()" md-no-float style="font-size: 1em;" class="md-block" flex-gt-sm>
-                             <input ng-maxlength="12" style="text-align: center;" onfocus="this.placeholder=''" onblur="this.placeholder='Username'" placeholder="Username" ng-model="potentialChatName">
-                             <br>
-                             <center>
-                             <md-button ng-disabled="!potentialChatName" ng-click="requestChatName()" class="md-raised md-primary">Request Name</md-button>
-                             </center>
-                         </md-input-container>
-                     </form>
-                 </div>
 
                 <md-button ng-click="closeChat()" class="md-primary">
                   Close Chat
                 </md-button>
               </md-content>
             </md-sidenav>
+
+
+
+            <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" style="width: 80%;">
+                <md-content layout-padding>
+                    <center>
+                        <h2>Settings</h2><br>
+                        <md-switch ng-init="user.SoundEffects" ng-change="toggleSounds(user.SoundEffects)" ng-model="user.SoundEffects" aria-label="Switch 1">
+                            <h4>Obnoxious sound effects</h4>                  
+                        </md-switch>
+                    </center>
+
+
+                  
+                <center>
+                    <md-button ng-click="closeSettings()" class="md-primary">
+                        Close Settings
+                    </md-button>
+                </center>
+              </md-content>
+            </md-sidenav>
+
+
+
+
+
     </div>
     <div ng-show="targetTime && !result">
         <center>  <h2>Shoot the targets!<br> {{targetsHit}} of 5</h2></center>

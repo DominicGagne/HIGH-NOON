@@ -83,8 +83,7 @@ app.post('/login',
     // `req.user` contains the authenticated user.
     console.log("authenticated!");
     console.log("body: " , req.body);
-    delete req.user.UserID;
-    res.send(req.user);
+    res.send(sanitizeUserForClient(req.user));
     //res.redirect('/users/' + req.user.username);
   });
 
@@ -113,6 +112,24 @@ app.get('/init', function(req, res) {
     payload.push(mcCreeData);
     payload.push(bullseyeData);
     res.status(200).send(payload);
+});
+
+app.put('/toggleSounds', authenticationStrategies.ensureAuthenticated, function(req, res) {
+    console.log("USER(I think): ", req.user.UserID);
+    if(! req.body.toggleSounds) {
+        res.status(400).send("Badly formatted request.");
+    } else {
+        console.log("USER WANTS TO: ", req.body.toggleSounds);
+        database.insertOrUpdate("UPDATE User SET SoundEffects = ? WHERE UserID = ?", [parseInt(req.body.toggleSounds), req.user.UserID], function(err, insertID) {
+            if(err) {
+                console.log("Error!");
+                throw err;
+            } else {
+                console.log("success.");
+            }
+        });
+        res.send("0");
+    }
 });
 
 app.get('/requestChatName/:name', function(req, res) {
@@ -250,6 +267,19 @@ function checkRecords() {
            }        
         });
     }
+}
+
+//we don't want to pass back sensitive user info!
+//however, we also don't want to modify the session object for the user.
+//so I'll copy the important info over and leave the session object untounched.
+function sanitizeUserForClient(passportUserObject) {
+    var sanitized = {};
+    sanitized.Username = passportUserObject.Username;
+    sanitized.SoundEffects = passportUserObject.SoundEffects;
+    sanitized.NumWins = passportUserObject.NumWins;
+    sanitized.TotalWins = passportUserObject.TotalPoints;
+
+    return sanitized;
 }
 
 function addToActiveSockets(socketID) {
