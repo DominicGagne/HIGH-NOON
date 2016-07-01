@@ -97,7 +97,16 @@ app.post('/register', function(req, res) {
                 res.status(503).send();
             } else {
                 console.log("sucess inserting new user. ID: ", insertID);
-                res.send({"Username":req.body.username, "TotalWins":0, "NumWins":0, "TotalPoints":0, "SoundEffects":1});
+
+                //TODO not sure how clean this is...definitely not scalable. What if we have more init variables in the future? Need to look this up.
+                req.login({"UserID":insertID, "Username":req.body.username, "NumWins":0, "TotalPoints":0, "SoundEffects":1}, function(err) {
+                    if(err) {
+                        console.log("ERROR with login after register.");
+                        throw err;
+                    } else {
+                        res.send(sanitizeUserForClient(req.user));
+                    }
+                });
             }
         });
     }

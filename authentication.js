@@ -32,12 +32,12 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
         });        
 
         passport.deserializeUser(function(user, done) {
-          // placeholder for custom user deserialization.
-          // first argument is for errors
-          console.log("\n\n\nde - serialization in progress.");
-          console.log("USER: " + JSON.stringify(user));
+            // placeholder for custom user deserialization.
+            // first argument is for errors
+            console.log("\n\n\nde - serialization in progress.");
+            console.log("USER: " + JSON.stringify(user));
 
-          done(null, user);
+            done(null, user);
         });
 
 
