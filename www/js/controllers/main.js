@@ -120,7 +120,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     }
 
     function assignChatToken(response) {
-        console.log("your char token: ", response.data);
+        console.log("your chat token: ", response.data);
         $scope.user.chatToken = response.data;
     }
 

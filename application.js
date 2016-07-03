@@ -105,29 +105,43 @@ app.post('/register', function(req, res) {
         res.status(400).send("Badly formatted request.");
     } else {
         console.log("PASS: ", req.body.password);
-        database.insertOrUpdate("INSERT INTO User (Username, Password) VALUES (?, ?)", [req.body.username, passwordHash.generate(req.body.password)], function(err, insertID) {
+        database.insertOrUpdate("INSERT INTO User (Username, Password) VALUES (?, ?)", [req.body.username, passwordHash.generate(req.body.password)], function(err, userInsertID) {
             if(err) {
                 console.log("error inserting new user.");
                 res.status(503).send();
             } else {
-                console.log("sucess inserting new user.ID: ", insertID);
-                database.insertOrUpdate("INSERT INTO Settings (UserID, UTCOffset) VALUES (?, ?)", [insertID, req.body.utcoffset], function(err, insertID) {
-                    //jesus these callbacks...
+                console.log("sucess inserting new user.ID: ", userInsertID);
+                database.insertOrUpdate("INSERT INTO ChatTokens (UserID) VALUES (?)", [userInsertID], function(err, insertID) {
                     if(err) {
-                        console.log("error inserting into settings  table for userid: ", insertID);
+                        console.log("error creating new record in Token table.");
                         throw err;
                     } else {
-                        console.log("inserted into settings table successfully.");
-                        //MODULARIZE THESE GODDAMNED CALLBACKS!
-                        database.fetchFirst("SELECT * FROM User INNER JOIN Settings ON Settings.UserID = User.UserID WHERE User.Username = ?", [req.body.username], function (userRecord) {
-                            req.login(userRecord, function(err) {
-                                if(err) {
-                                    console.log("ERROR with login after register.");
-                                    throw err;
-                                } else {
-                                    res.send(sanitizeUserForClient(req.user));
-                                }
-                            });
+                        console.log("created record in token table successfully. id: ", insertID);
+                            database.insertOrUpdate("INSERT INTO Settings (UserID, UTCOffset) VALUES (?, ?)", [userInsertID, req.body.utcoffset], function(err, settingsInsertID) {
+                            //jesus these callbacks...
+                            if(err) {
+                                console.log("error inserting into settings  table for userid: ", settingsInsertID);
+                                throw err;
+                            } else {
+                                console.log("inserted into settings table successfully.");
+
+                                authenticationStrategies.insertChatToken(userInsertID, function() {
+                                    //MODULARIZE THESE GODDAMNED CALLBACKS!
+                                    database.fetchFirst("SELECT * FROM User INNER JOIN Settings ON Settings.UserID = User.UserID WHERE User.Username = ?", [req.body.username], function (userRecord) {
+                                        console.log("found user record, logging in: ", userRecord);
+
+                                        //it seems this req.login methods simply serializes the user, does not call the Local Strategy.
+                                        req.login(userRecord, function(err) {
+                                            if(err) {
+                                                console.log("ERROR with login after register.");
+                                                throw err;
+                                            } else {
+                                                res.send(sanitizeUserForClient(req.user));
+                                            }
+                                        });
+                                    });
+                                });
+                            }
                         });
                     }
                 });
@@ -150,13 +164,16 @@ app.get('/chattoken', authenticationStrategies.ensureAuthenticated, function(req
     //if it was, set socket.chatAuth = true
     //on subsequent requests to 'message' check socket.chatAuth, will last for the duration of their session.
     //what if they change their socketID? is it possible? Don't think we need to worry about that.
-    
-    if(req.user.chatToken) {
-        res.status(200).send(req.user.chatToken);
-    } else {
-        //no chat token found, why would this be the case?
-        res.status(503).send();
-    }
+
+    database.fetchFirst("SELECT Token FROM chattokens INNER JOIN User ON chattokens.UserID = User.UserID WHERE User.UserID = ? ", [req.user.UserID], function(TokenObj) {
+        console.log("Token", TokenObj);
+        if(TokenObj.Token) {
+            res.status(200).send(TokenObj.Token);
+        } else {
+            //no chat token found, why would this be the case?
+            res.status(503).send();
+        }
+    });
 });
 
 
@@ -364,19 +381,55 @@ io.on('connection', function(socket) {
 
     socket.on('message', function(msg) {
 
-        monitorSpam(socket);
+        console.log("socket chatAuth: ", socket.chatAuth);
 
-        if(! isSocketBanned(socket)) {
-            io.emit('message', msg);
+        if(!socket.chatAuth) {
+            //token has not yet been authenticated.
+            authenticateChatToken(msg, function(tokenIsValid) {
+                if(tokenIsValid) {
+                    //this request is valid, they have supplied a correct token.
+                    processAuthorizedMessage(socket, msg);
+                } else {
+                    //request is invalid, user likely tampered with token.
+                }
+            });
         } else {
-            socket.timesSpammedWhileBanned++;
-            console.log("pushing to bannedSockets: ", socket.id.substring(2));
-            bannedSockets.push(socket.id.substring(2));
-            socket.emit('spamWarning');
+            processAuthorizedMessage(socket, msg);
         }
-
     });
 });
+
+function processAuthorizedMessage(socket, msg) {
+    console.log("processing authorized message.");
+    monitorSpam(socket);
+
+    if(! isSocketBanned(socket)) {
+        //before we emit 'msg', we need to sanitize! dont' want to
+        //pass back their chat token to all other users!
+        io.emit('message', msg);
+    } else {
+        socket.timesSpammedWhileBanned++;
+        console.log("pushing to bannedSockets: ", socket.id.substring(2));
+        bannedSockets.push(socket.id.substring(2));
+        socket.emit('spamWarning');
+    }
+}
+
+function authenticateChatToken(msg, callback) {
+    console.log("NEED TO AUTH: ", msg);
+    var requestor = msg.requestor;
+    database.fetchFirst("SELECT Token FROM ChatTokens INNER JOIN User on ChatTokens.UserID = User.UserID WHERE User.Username = ?", [requestor], function(databaseToken) {
+        console.log("DEBUG: db: ", databaseToken.Token, " user token: ", msg.chatToken);
+        if(databaseToken.Token == msg.chatToken) {
+            //the message bearer has supplied to correct chat token, authorise them.
+            console.log("Authorized via chat token.");
+            callback(true);
+        } else {
+            console.log("Not authorized to chat.");
+            callback(false);
+        }
+    });
+}
 
 
 //we don't want to pass back sensitive user info!

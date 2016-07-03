@@ -31,10 +31,17 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
 
 		    	//generate a chat token this user will use to 
 		    	//authenticate chat messages during this session.
-		    	userRecord.chatToken = generateChatToken();
+		    	
+		    	//does it make sense to attach this information to the user's session?
+		    	//if we are storing it in the database...
+		    	//userRecord.chatToken = generateChatToken();
 
-		    	//send userRecord to be serialized.
-		        return done(null, userRecord);
+
+		    	self.insertChatToken(userRecord.UserID, function() {
+		    		console.log("send userRecord to be serialized.");
+		    		//send userRecord to be serialized.
+		            return done(null, userRecord);
+		    	});
 		    });
 		  }
 		));
@@ -74,6 +81,19 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
         var hex = Math.floor(Math.random() * 1000000) + 100000;
         return hex.toString(16).substring(0,5);
     }
+
+    self.insertChatToken = function(userID, callback) {
+    	var token = generateChatToken();
+    	database.insertOrUpdate("UPDATE ChatTokens SET Token = ? WHERE UserID = ?", [token, userID], function(err, insertID) {
+    		if(err) {
+    			console.log("Could not insert new chat token.");
+    			throw err;
+    		} else {
+    			console.log("chat token inserted.");
+    			callback();
+    		}
+    	});
+    };
 
 
     function validatePassword(userRecord, password) {
