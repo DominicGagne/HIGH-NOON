@@ -115,6 +115,15 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
         $http.get('/init').then(initSuccess, initFailure);
     }
 
+    function getChatToken() {
+        $http.get('/chattoken').then(assignChatToken, initFailure);
+    }
+
+    function assignChatToken(response) {
+        console.log("your char token: ", response.data);
+        $scope.user.chatToken = response.data;
+    }
+
     function initSuccess(response) {
         console.log("initSuccess");
         $scope.mcCree = response.data[0];
@@ -162,6 +171,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             var chatMsgObj = {};
             chatMsgObj.requestor = $scope.user.Username;
             chatMsgObj.message = $scope.messageToSend;
+            //chat token for auth
+            chatMsgObj.chatToken = $scope.user.chatToken;
             console.log("SENDING: " + chatMsgObj.message);
             $scope.messageToSend = '';
             if($scope.user.settings.SoundEffects) {
@@ -246,6 +257,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
                 console.log("response: ", response.data);
                 $scope.user.settings.SoundEffects = unformatBinaryToggle($scope.user.settings.SoundEffects);
                 $scope.user.settings.ChatToast = unformatBinaryToggle($scope.user.settings.ChatToast);
+                getChatToken();
                 console.log("user:", $scope.user);
             }
 
@@ -265,6 +277,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             $scope.user = response.data;
             $scope.user.settings.SoundEffects = unformatBinaryToggle($scope.user.settings.SoundEffects);
             $scope.user.settings.ChatToast = unformatBinaryToggle($scope.user.settings.ChatToast);
+            getChatToken();
             console.log("user:", $scope.user);
         }, function(response) {
             console.log("error from server.");
