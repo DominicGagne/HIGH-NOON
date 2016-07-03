@@ -140,6 +140,27 @@ app.get('/test', authenticationStrategies.ensureAuthenticated, function(req, res
     console.log("Good auth.");
 });
 
+app.get('/chattoken', authenticationStrategies.ensureAuthenticated, function(req, res) {
+    //the local strategy has already linked the user to a 
+    //socket and created a chat token for them.
+    //pass the serialized chat token back to the user.
+    //on requests to chat 'message', check socket.chatAuth.
+    //if false, check to see that their supplied chat token 
+    //is the same as what was serialized.
+    //if it was, set socket.chatAuth = true
+    //on subsequent requests to 'message' check socket.chatAuth, will last for the duration of their session.
+    //what if they change their socketID? is it possible? Don't think we need to worry about that.
+    
+    if(req.user.chatToken) {
+        res.status(200).send(req.user.chatToken);
+    } else {
+        //no chat token found, why would this be the case?
+        res.status(503).send();
+    }
+});
+
+
+
 //instead of a ban status, lets have the user make a request when they open the chat,
 //which will pass back a token that is required to chat. required during that hour? each
 //time someone logs in generate a token and store it until they request open chat.
@@ -161,6 +182,7 @@ function banAccount(req) {
         }
     }
 }
+
 
 function setPersistentUserBan(userID) {
     var bannedUntil = (currentMicrosecond / 1000) + 86400;
@@ -288,7 +310,6 @@ function updatedVisitors(err, updatedID) {
 
 io.on('connection', function(socket) {
     numUsers++;
-    checkRecords();
 
     socket.messagesThisInterval = 0;
     socket.lastChatTimestamp = parseInt(new Date() / 1000);
@@ -357,17 +378,6 @@ io.on('connection', function(socket) {
     });
 });
 
-function checkRecords() {
-    if(numUsers > allTimeHigh) {
-       console.log("NEW ALL TIME HIGH: " + allTimeHigh);
-       io.emit('newRecord', numUsers);
-       fs.writeFile('visitors.txt', numUsers.toString(),  function(err) {
-           if (err) {
-               return console.error(err);
-           }        
-        });
-    }
-}
 
 //we don't want to pass back sensitive user info!
 //however, we also don't want to modify the session object for the user.

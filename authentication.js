@@ -28,6 +28,12 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
 
 		        //attach socket to identify this user.
 		    	userRecord.socketid = req.body.socketid;
+
+		    	//generate a chat token this user will use to 
+		    	//authenticate chat messages during this session.
+		    	userRecord.chatToken = generateChatToken();
+
+		    	//send userRecord to be serialized.
 		        return done(null, userRecord);
 		    });
 		  }
@@ -62,6 +68,12 @@ var authenticationModule  = function(app, passport, LocalStrategy, database, pas
       if (req.isAuthenticated()) { return next(); }
       res.status(403).send("Not authenticated.");
     };
+
+    //generates random 5 digit hex number, returned as string.
+    function generateChatToken() {
+        var hex = Math.floor(Math.random() * 1000000) + 100000;
+        return hex.toString(16).substring(0,5);
+    }
 
 
     function validatePassword(userRecord, password) {

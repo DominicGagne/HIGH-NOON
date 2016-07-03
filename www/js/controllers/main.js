@@ -62,7 +62,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     });
 
     socket.on('message', function(chatMsgObj) {
-      if(! $mdSidenav('right').isOpen()) {
+      if(! $mdSidenav('right').isOpen() && $scope.user.settings.ChatToast) {
           //send toast!
           showMessageToast();
       }
@@ -154,6 +154,9 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
 
 
+
+
+
     $scope.sendMessage = function() {
         if($scope.messageToSend) {
             var chatMsgObj = {};
@@ -161,7 +164,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             chatMsgObj.message = $scope.messageToSend;
             console.log("SENDING: " + chatMsgObj.message);
             $scope.messageToSend = '';
-            if($scope.user.SoundEffects) {
+            if($scope.user.settings.SoundEffects) {
                 gunshot.play();
             }
             socket.emit('message', chatMsgObj);
@@ -172,7 +175,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     $scope.openChat = function() {
         $mdSidenav('right').open();
         $mdToast.hide();
-        if($scope.user.SoundEffects) {
+        if($scope.user.settings.SoundEffects) {
             familiar.play();
         }
         var objDiv = document.getElementById("chat");
@@ -184,8 +187,11 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
     };
 
     $scope.updateToggleSettings = function() {
-        $http.put('/updateToggleSettings', {"userSettings":formatToggleSettings($scope.user.settings)}).then(function(response) {
-            console.log("success from toggle sounds.");
+        var body = {};
+        body.userSettings = formatToggleSettings($scope.user.settings);
+
+        $http.put('/updateToggleSettings', body).then(function(response) {
+            console.log("success from toggle settings.");
         }, function(response) {
             console.log("error from server.");
             console.log(response);
@@ -257,8 +263,8 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
             console.log("logged in.");
             console.log(response);
             $scope.user = response.data;
-            $scope.user.SoundEffects = unformatBinaryToggle($scope.user.SoundEffects);
-            $scope.user.ChatToast = unformatBinaryToggle($scope.user.ChatToast);
+            $scope.user.settings.SoundEffects = unformatBinaryToggle($scope.user.settings.SoundEffects);
+            $scope.user.settings.ChatToast = unformatBinaryToggle($scope.user.settings.ChatToast);
             console.log("user:", $scope.user);
         }, function(response) {
             console.log("error from server.");
@@ -315,7 +321,7 @@ var Boilerplate = angular.module('Boilerplate.controllers',[])
 
         drawTarget();
 
-        if($scope.user.SoundEffects) {
+        if($scope.user.settings.SoundEffects) {
             if(!gunshot.paused) {
                 gunshotTwo.play();
             } else {
